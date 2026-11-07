@@ -1,0 +1,18 @@
+{
+  "id": "kb081",
+  "title": "Active Directory attack-path chains (authorized internal)",
+  "description": "Recon→cred/access→privesc→lateral/ADCS/relay concepts, evidence-driven.",
+  "detail": "Authorized internal only. 1) **Recon/assets:** identify DCs, domain, trusts (DNS/LDAP/SMB/Kerberos), hosts/users/groups/SPNs, ACLs (netexec/ldapsearch/bloodhound-python where in-scope). 2) **Initial access/creds:** valid creds, ASREProast/Kerberoast candidates, shares, password policy — controlled, avoid lockout. 3) **Escalate/paths:** local privesc, delegation issues, ACL abuse paths, **ADCS** misconfig concepts (ESC paths) — validate with evidence in scope. 4) **Lateral/relay concepts:** SMB signing/relay conditions, coercion-prone services — test only authorized, non-destructive validation. 5) **Evidence→findings:** each step produces facts (cred/service/vuln) and confirmed findings with proof. Use ad-attack, ad-pki-certificate, credential-handling, lateral-movement, privilege-relay skills. No unauthorized changes.",
+  "commands": [
+    "netexec smb <dc> -u <u> -p <p> --shares",
+    "netexec ldap <dc> -u <u> -p <p> --users",
+    "bloodhound-python -d <dom> -u <u> -p <p> -gc <dc> -c All (authorized)"
+  ],
+  "tags": [
+    "ad",
+    "windows",
+    "lateral-movement"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T13:34:20Z"
+}

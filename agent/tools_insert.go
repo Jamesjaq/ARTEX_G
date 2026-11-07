@@ -662,7 +662,7 @@ func (t *ToolSet) WorkerTools() []actool.CoreTool {
 
 // MainAgentTools returns the human-interface tool set.
 func (t *ToolSet) MainAgentTools() []actool.CoreTool {
-	return []actool.CoreTool{
+	tools := []actool.CoreTool{
 		t.graphOverview(), t.listFindings(), t.listFacts(), t.nodeDetail(),
 		t.expandDigest(), // cold-digest §6.1
 		t.getWorkerOutput(), t.getWorkerTrace(), t.searchAllWorkerTraces(), t.addHint(), t.addIntent(),
@@ -679,6 +679,8 @@ func (t *ToolSet) MainAgentTools() []actool.CoreTool {
 		// list_untested_assets：按需查本任务范围内未测资产(类型+分页)，自行决定补测。
 		t.listUntestedAssets(),
 	}
+	// Engagement fact-intent graph (vendored, no-CTF): shared working memory, recall, KB.
+	return append(tools, t.CampaignTools()...)
 }
 
 // AllDomainTools returns the union of all domain tools across all agent types,

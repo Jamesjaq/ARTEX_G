@@ -1,0 +1,16 @@
+{
+  "id": "kb062",
+  "title": "SQLi quick validation (sqlmap, scoped)",
+  "description": "Confirm and safely enumerate injection points found manually.",
+  "detail": "Use after a manual signal (error/boolean/time). Keep scope tight. 1) sqlmap -u <url> -p <param> --batch --level 1 --risk 1 first; escalate only if needed and safe. 2) Limit to enumeration needed for proof (current db/user) unless exploitation/impact is explicitly authorized. 3) Never dump unnecessary PII; capture minimal evidence. Record as vuln fact with repro.",
+  "commands": [
+    "sqlmap -u 'http://T/item?id=1' -p id --batch --level 1 --risk 1 --banner"
+  ],
+  "tags": [
+    "web",
+    "sqli",
+    "validation"
+  ],
+  "source": "operator playbook",
+  "created_at": "2026-11-07T12:49:51Z"
+}

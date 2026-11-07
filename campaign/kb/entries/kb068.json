@@ -1,0 +1,17 @@
+{
+  "id": "kb068",
+  "title": "Multi-target service fingerprinting & bucketing",
+  "description": "Turn large scan results into actionable work buckets.",
+  "detail": "After liveness/port discovery: 1) Parse results (nmap -oG/-oX, httpx json) into host->services. 2) Bucket: (A) mgmt/auth/VPN/remote access, (B) web apps/APIs, (C) databases/caches/queues, (D) ICS/OT protocols, (E) file/infra services. 3) Attach tech+version; map to relevant skills (web-exploitation, api-security, ad-attack, ot-ics-assessment, database-attack). 4) Create intents per bucket with clear scope; cap parallelism on fragile targets. 5) Reconcile with campaign graph to avoid duplicate work.",
+  "commands": [
+    "nmap -sV -oX sweep.xml -iL live.txt",
+    "httpx -l hosts.txt -json -o httpx.json"
+  ],
+  "tags": [
+    "recon",
+    "multi-target",
+    "methodology"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "kb064",
+  "title": "Siemens S7comm active identification (no write/control)",
+  "description": "Enumerate Siemens S7 PLC info; read/identify only, no control.",
+  "detail": "Authorized, in-scope. **Active + read/identify allowed; NO WRITE/CONTROL.** 1) nmap --script s7-info,s7-enumerate -p 102 to gather module/system/PLC identity. 2) Read-only identification/diagnostics only; **no STOP/START CPU, no program upload/download, no variable writes, no mode/force changes**. 3) Note protection levels/auth posture as findings where in scope; test only non-destructive, scoped actions. 4) Record with process impact context.",
+  "commands": [
+    "nmap -Pn -sV -p 102 --script s7-info,s7-enumerate <target> -oN s7.txt"
+  ],
+  "tags": [
+    "ics",
+    "scada",
+    "siemens",
+    "s7",
+    "ot"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

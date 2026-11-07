@@ -1,0 +1,18 @@
+{
+  "id": "kb061",
+  "title": "AD/Windows attack surface (authorized internal)",
+  "description": "Safe enumeration path for Active Directory environments on Kali.",
+  "detail": "Authorized internal only. 1) Identify DCs/services (DNS SRV, LDAP 389/636, Kerberos 88, SMB 445). 2) Enumerate with netexec/ldapsearch/smbclient/bloodhound-python where creds/context allow. 3) Look for ASREProast/Kerberoast candidates, SMB signing/relay conditions, shares, delegations - validate carefully. 4) Correlate with ad-attack/ad-pki-certificate skills; record cred/service/vuln facts. Avoid disruptive changes; coordinate with owner.",
+  "commands": [
+    "netexec smb <dc-or-range> --shares -u '' -p ''  # null/guest check if in scope",
+    "ldapsearch -x -H ldap://<dc> -b 'DC=example,DC=local' '(objectClass=domain)'"
+  ],
+  "tags": [
+    "ad",
+    "windows",
+    "internal",
+    "recon"
+  ],
+  "source": "AD assessment basics",
+  "created_at": "2026-11-07T12:49:51Z"
+}

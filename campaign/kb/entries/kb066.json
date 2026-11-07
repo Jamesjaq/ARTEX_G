@@ -1,0 +1,18 @@
+{
+  "id": "kb066",
+  "title": "BACnet/UDP active identification (no write/control)",
+  "description": "Identify BACnet building controllers; read/identify only.",
+  "detail": "Authorized, in-scope. **Active + read/identify allowed; NO WRITE/CONTROL.** 1) UDP 47808; nmap -sU --script bacnet-info to enumerate device/object info. 2) Read properties for identification only; **do not WriteProperty/atomic writes, no reinitialize, no device control** on production. 3) Note exposed building automation and IT/OT segmentation gaps.",
+  "commands": [
+    "nmap -Pn -sU -p 47808 --script bacnet-info <target> -oN bacnet.txt"
+  ],
+  "tags": [
+    "ics",
+    "ot",
+    "bacnet",
+    "building-automation"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

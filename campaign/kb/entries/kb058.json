@@ -1,0 +1,21 @@
+{
+  "id": "kb058",
+  "title": "ICS/SCADA active assessment (no write/control, scoped)",
+  "description": "Network-level ICS/SCADA active discovery & assessment; strictly no write/control/actuation.",
+  "detail": "Authorized, in-scope OT/ICS only (you control scope). **Active assessment allowed** (scanning, service/protocol fingerprinting, discovery, read-only queries, auth/session testing where safe) — **STRICTLY NO WRITE/CONTROL/ACTUATION**: no coil/register/object writes, no setpoint/mode/force changes, no start/stop, no program upload/download, no commands that actuate a physical process. No RF/SDR/hardware.\n1) Identify ICS protocols/ports: Modbus/TCP 502, Siemens S7comm 102, EtherNet/IP (CIP) 44818, BACnet/UDP 47808, DNP3 20000, OPC UA 4840, IEC-104 2404, Schneider Modicon/UMAS over Modbus 502, PROFINET (discovery), GE SRTP 18245, OMRON FINS/UDP 9600, Mitsubishi MELSEC 5007/5006, Codesys 2455, PCWorx 1962, Triconex/Tristation 1502, Red Lion Crimson 789, etc.\n2) Active enumeration/fingerprinting: nmap -sV and NSE info/discovery scripts (modbus-discover, s7-info, s7-enumerate, enip-info, bacnet-info, dnp3-info, fox-info, pcworx-info, etc.) and protocol-appropriate read/identify calls. Verify scripts are read/identify (avoid any write-capable behavior).\n3) Assess HMIs/engineering stations/historians/web UIs (80/443/8080+): auth, default creds (controlled, scoped), vulns/misconfig — active but non-destructive; no actions that change process state.\n4) Map IT/OT bridges, exposed controllers/HMIs, segmentation gaps. 5) Record host/service/finding facts with asset criticality/safety context. Stay within your declared scope; avoid write/control under all circumstances.",
+  "commands": [
+    "nmap -Pn -sV -p 102,502,1962,2404,2455,4840,5006,5007,9600,20000,44818,47808 --script s7-info,enip-info,bacnet-info,dnp3-info,modbus-discover <target> -oA ot/discovery",
+    "nmap -Pn -sU -p 47808,9600 --script bacnet-info <target> -oA ot/udp"
+  ],
+  "tags": [
+    "ics",
+    "scada",
+    "ot",
+    "recon",
+    "active",
+    "safety"
+  ],
+  "source": "ICS assessment (authorized, scoped, no write/control)",
+  "created_at": "2026-11-07T12:49:51Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "kb065",
+  "title": "EtherNet/IP & CIP active identification (no write/control)",
+  "description": "Identify EtherNet/IP (44818) / CIP devices; read/identify only.",
+  "detail": "Authorized, in-scope. **Active + read/identify allowed; NO WRITE/CONTROL.** 1) nmap --script enip-info -p 44818 for device identity/CIP info. 2) Read/identify only; no CIP writes, no parameter/firmware changes, no actuator commands. 3) Map Rockwell/Allen-Bradley & other CIP devices; record as facts.",
+  "commands": [
+    "nmap -Pn -sV -p 44818 --script enip-info <target> -oN enip.txt"
+  ],
+  "tags": [
+    "ics",
+    "ot",
+    "ethernet-ip",
+    "cip",
+    "rockwell"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "kb080",
+  "title": "ICS advisory correlation (no exploitation)",
+  "description": "Map observed products/versions/protocols to vendor/CISA advisories.",
+  "detail": "Use observed banners/identity (s7-info, enip-info, modbus-discover, http headers, etc.) — no exploitation. 1) Extract vendor/product/model/version/firmware from read-identify evidence. 2) Correlate to vendor advisories and CISA ICS Advisories (ICS-CERT) by product/version. 3) Confirm applicability to the *exposed path* (advisory-to-banner alone = inventory; becomes a finding when the path/condition exists in scope). 4) Prioritize by exposure + impact; recommend patching/compensating controls/segmentation. Record as vuln/informational facts with evidence refs.",
+  "commands": [],
+  "tags": [
+    "ics",
+    "vuln-intel",
+    "advisory"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T13:34:20Z"
+}

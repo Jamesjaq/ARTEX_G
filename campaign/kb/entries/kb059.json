@@ -1,0 +1,17 @@
+{
+  "id": "kb059",
+  "title": "Nuclei targeted scanning (multi-target)",
+  "description": "Template-based vuln/misconfig scanning at scale with safe defaults.",
+  "detail": "Use for web/services across many targets. 1) Curate target list (live URLs/hosts). 2) Start with safe templates/tags (technologies, exposures, misconfiguration, default-logins) before intrusive ones; respect scope and rate. 3) Use -severity/info filtering and -rate-limit/-c to avoid overload; exclude fragile/OT targets unless approved. 4) Triage hits: validate manually, convert confirmed issues to vuln facts. 5) Pipe httpx output into nuclei for efficiency.",
+  "commands": [
+    "httpx -l hosts.txt -silent | nuclei -severity medium,high,critical -rl 50 -c 20 -o nuclei.txt",
+    "nuclei -u https://target -tags exposure,misconfig -o nuclei_target.txt"
+  ],
+  "tags": [
+    "vuln-scan",
+    "web",
+    "multi-target"
+  ],
+  "source": "nuclei docs/playbook",
+  "created_at": "2026-11-07T12:49:51Z"
+}

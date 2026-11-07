@@ -1,0 +1,18 @@
+{
+  "id": "kb079",
+  "title": "ICS HMI/EWS/web interface assessment (no write/control)",
+  "description": "Assess HMI, engineering workstation, historian web UIs safely.",
+  "detail": "Authorized, in-scope. Active but **non-destructive; NO process write/control/actuation**. 1) Fingerprint web/app interfaces (httpx/whatweb) on HMIs/EWS/historians. 2) Auth/config review: default/weak creds (controlled attempts, avoid lockout; in scope), exposed admin panels, anonymous access, session issues — test like web apps but do not trigger actions that change process state. 3) Known vulns/misconfig (nuclei safe templates, version checks) — validate carefully. 4) Record service/cred/vuln facts with impact; never issue control commands via the UI/API.",
+  "commands": [
+    "httpx -u http://<hmi> -title -tech-detect -status-code",
+    "nuclei -u http://<hmi> -tags misconfig,exposure -severity medium,high,critical -rl 10"
+  ],
+  "tags": [
+    "ics",
+    "hmi",
+    "web",
+    "ot"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T13:34:20Z"
+}

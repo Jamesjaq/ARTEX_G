@@ -1,0 +1,26 @@
+{
+  "id": "kb074",
+  "title": "Schneider / GE / OMRON / Mitsubishi / Triconex / Codesys ICS identification (no write/control)",
+  "description": "Active identification of additional ICS vendors/protocols; read/identify only.",
+  "detail": "Authorized, in-scope. Active + read/identify allowed; **NO WRITE/CONTROL/ACTUATION**. **Schneider Electric (Modicon):** Modbus/TCP 502 (+ UMAS function 0x5A for Modicon M340/M580/Quantum/Premium etc.) — enumerate device/PLC info read-only; no program/variable writes, no run/stop, no UMAS write operations. **Siemens:** S7comm 102 (S7-300/400/1200/1500) — s7-info/enumerate read-only; no CPU control/transfer/writes. **Rockwell/Allen-Bradley:** EtherNet/IP CIP 44818 — enip-info read-only; no CIP writes. **GE:** SRTP 18245 — identify read-only. **OMRON:** FINS 9600/udp(+tcp) — identify read-only. **Mitsubishi:** MELSEC 5007/5006 — identify read-only. **Triconex/Schneider SIS (network view):** Tristation 1502 — identify only; NEVER interact with safety/trip logic (read-only ID only, and treat as highly sensitive). **Codesys:** 2455 — identify read-only. **Wago/PCWorx:** 1962 — identify read-only. **Red Lion Crimson:** 789 — identify read-only. **Protocols also in scope:** DNP3 20000, IEC-60870-5-104 (2404), OPC UA 4840, BACnet 47808/udp, Modbus 502, PROFINET (discovery). Always verify NSE/scripts are identify/read-only; record vendor/product/firmware exposure as facts with criticality.",
+  "commands": [
+    "nmap -Pn -sV -p 102,502,1502,1962,2455,4840,5006,5007,7890,9600,18245,20000,44818 --script s7-info,enip-info,modbus-discover,dnp3-info <target> -oA ics_vendors",
+    "nmap -Pn -sU -p 9600,47808 <target> -oA ics_vendors_udp"
+  ],
+  "tags": [
+    "ics",
+    "scada",
+    "ot",
+    "schneider",
+    "siemens",
+    "dnp3",
+    "rockwell",
+    "ge",
+    "omron",
+    "mitsubishi",
+    "triconex",
+    "codesys"
+  ],
+  "source": "ICS assessment (authorized, scoped, no write/control)",
+  "created_at": "2026-11-07T13:17:32Z"
+}

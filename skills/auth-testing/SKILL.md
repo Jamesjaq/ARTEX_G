@@ -1,0 +1,40 @@
+---
+name: auth-testing
+description: "Invoke this skill when the task covers an authorized target's identity paths: login and registration, session handling, password reset, MFA, and SSO bridges (OIDC and SAML) — where the objective is the state machine's flaws, not the token's crypto."
+---
+
+# Authentication & Session Flow Testing
+
+Login, session, reset, MFA and SSO as state machines: which transition accepts something it should refuse, and what identity that buys. Done = each flow has a tested-versus-not-tested verdict on every transition, every conclusion carried by a demonstrated consequence, and a boundary proven with two principals you own.
+
+## Boundaries
+
+- Authorized use: test the identity paths of the asset the intent names, using accounts and credentials the engagement issued. Two of your own accounts are the minimum for any boundary claim. No accounts, no guessing: one `ask_operator` request naming exactly what you need.
+- Brute force, credential spraying, and password-guessing against real users are out of bounds unless the RoE names them. Where you must show a missing attempt limit, send a handful of failures, then report the count and stop.
+- Never touch a real user's mailbox, phone, authenticator or identity provider. A step that needs a code only a human can receive is one `ask_operator` line. Do not register throwaway accounts on third-party identity platforms to route around that.
+- Only the target's own IdP and service-provider endpoints inside the authorised scope; never a third party's IdP reached through a shared SSO link.
+- Do not change a real user's password, MFA device or recovery path. Reset and enrollment tests run on your own accounts; record every account and object you touched and restore state.
+- Not: JWT algorithm/key-confusion/signature attacks and API authorisation (api-security), GraphQL auth (graphql-api), SSRF in OAuth callback parameters (ssrf-metadata), and the browser-side theft of a token once you have it (client-side).
+
+## Procedure
+
+1. Map the flow inventory from the asset's own surface, in both shapes: form login, API/JSON login, mobile login, signup, logout, magic link/OTP, reset, MFA enrollment and verify, impersonation/admin-login, session-refresh, and SSO entry/return. The web, API and mobile variants of one product frequently enforce different protections, so treat "same flow, different client" as its own test subject.
+2. Record the state machine before testing it: identifier fields and their casing/normalisation, password field names, extra fields the server echoes back, response codes and bodies per state, cookies and headers set (names only, values by reference), token lifetime fields, redirect targets, and which endpoint marks "authenticated" versus "second factor done". This map is what makes step 4's transitions testable.
+3. Enumeration, kept cheap and honest: compare responses for a known-absent identifier versus a known-present one across reset, signup and SSO-init endpoints; note status, message, length and timing differences with the counts of each sample you took. Enumeration is a fact unless you chain it into reset takeover, MFA bypass or a login consequence.
+4. Login and session transitions: does the session identifier change on authentication (fixation — compare pre- and post-login values by reference); does logout revoke the token server-side, including refresh tokens, and at other devices; does changing a password or starting a fresh login invalidate the old session; does an expired token ever get silently refreshed; is the bearer accepted in a query string or an unusual header. Idle and absolute expiry get measured on your own session, with the wait recorded, not inferred from a config name.
+5. Reset flow, transition by transition: token source (email link, OTP code, security questions), token entropy and shape sampled from your own accounts (two samples, describe the alphabet and length — never compare tokens belonging to real users), reusability after one use, expiry measured (issue, wait, retry at a couple of points), per-account rate limit on code submission, whether the code is checked before the new password is accepted, whether any consumed token survives on a second endpoint (the change-email or MFA-enroll step), and whether the link or code leaks through `Referer` to a third-party asset the page loads. Poison the host header / `X-Forwarded-Host` on the reset request once, to a destination the engagement owns or the operator named, and report either the poisoned link arriving or the validation that stopped it.
+6. MFA: try the post-second-factor endpoints with a session that has only passed the first step; try the password-only API/mobile variant of a flow the web enforces; try direct reachability of the completion endpoint, state carried across accounts, and codes reused; probe "remember this device" cookie scope. For the attempt limit, send a handful of wrong codes on your own account and report the lockout count rather than performing a real enumeration. Note whether enabling a second factor on your account replaced the first or stacked with it, and whether removing it left an active session behind.
+7. SSO / OIDC: `redirect_uri` matching (exact versus prefix versus wildcard versus scheme-only), whether `state` is required and checked, `nonce` presence and whether the RP validates it, whether an `id_token` obtained for one client or audience is accepted by another, whether the `email`/`preferred_username` claim drives auto-provisioning or account linking without verification, and whether a token from a *different issuer* is accepted at the callback. Prove the consequence by completing a login as your second account through the manipulated path.
+8. SAML: whether the response must be signed at all, signature placement and wrapping (XML signature transformation — verify which element the library actually signs versus which it trusts), `Destination`/`Audience`/`Recipient` checks, `IssueInstant` replay window, `NameID` casing/whitespace/comment normalisation between the identity lookup and the UI, whether the assertion's `NameID` or the email attribute drives the session, and whether the SP accepts a signed response carrying an unsigned assertion. Use your own SP and IdP instances where you were given them; do not drive authentication through a real person's IdP.
+9. Race and state edges with a small number of concurrent requests: signup/invite redemption, reset-token issuance, MFA completion, account recovery. A handful of requests, your own accounts, and the state that actually ended up applied.
+10. Anything the client hides is not a control: re-attempt every refused transition through the API shape and the mobile shape. The finding is what the server accepted.
+
+## Evidence
+
+Positive: the flow and the specific transition, the exact request/response pair per step with auth context labelled (which of your accounts), the consequence demonstrated end to end (accessed `<resource>` as `<other identity>`), the counts that bound the claim (`6` wrong-code attempts accepted before lockout, `2` of `2` consumed reset tokens replayed, `0` of `4` `redirect_uri` variants rejected), and the accounts/objects touched plus their restored state.
+
+Negative: "`<flow>` on `<host>`: the transitions `<tested list>` produced `<outcome>`; e.g. MFA skip: called `<verify-complete endpoint>` with a first-factor-only session for both test accounts, both returned `403` `step pending`; reset reuse: one consumed token replayed once, `410`. Session absolute expiry NOT ASSESSED: policy is 24h and the window was not available in this run; SAML signature wrapping NOT ATTEMPTED: no lab IdP was provisioned, and driving the real IdP is out of bounds".
+
+## Report shape
+
+"`<flow>` on `<host>`: `<transition>` allows `<outcome>` (`<e.g. account takeover via reset-link host poisoning>`)" with: flow and endpoints, precondition (which account/identity state), ordered replay steps, identities affected with counts, the control that blocked the other variants, and cleanup/restore status.

@@ -1,0 +1,18 @@
+{
+  "id": "kb057",
+  "title": "Multi-target triage & prioritization",
+  "description": "Adaptive workflow to handle 10s-100s of targets without thrash.",
+  "detail": "1) Normalize scope (IPs, CIDRs, domains, apps) and de-dup. 2) Fast liveness/port sweep (masscan/nmap top ports) -> bucket by exposure (internet-facing mgmt, auth portals, ICS ports, crown jewels). 3) Fingerprint services (httpx/whatweb/nmap -sV) and tag tech/role. 4) Prioritize: exposed admin/VPN/ICS + weak auth + known high-impact vulns first; schedule deep dives. 5) Track per-target state as facts (host,service,finding) in the campaign graph; keep frontier focused (WIP limit). 6) Re-scan deltas, not everything. Safety: respect rate limits and authorized scope; avoid disruptive scans on fragile ICS/medical/OT unless explicitly approved.",
+  "commands": [
+    "nmap -sn -iL targets.txt -oA sweep/hosts",
+    "nmap -sV --top-ports 1000 -iL live.txt -oA sweep/top1k",
+    "httpx -l urls.txt -title -tech-detect -status-code -o httpx.txt"
+  ],
+  "tags": [
+    "recon",
+    "methodology",
+    "multi-target"
+  ],
+  "source": "operator playbook",
+  "created_at": "2026-11-07T12:49:51Z"
+}

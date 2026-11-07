@@ -1,0 +1,18 @@
+{
+  "id": "kb073",
+  "title": "ICS findings reporting (active assessment, no write/control)",
+  "description": "How to report OT/ICS issues; active testing done, but no control actions taken.",
+  "detail": "1) State scope and method: **active network assessment** performed (enumeration/fingerprinting/read-only queries) — **no write/control/actuation performed**. 2) List assets/ports/protocols (incl. DNP3, Siemens S7, Schneider Modicon/UMAS, EtherNet/IP, Modbus, BACnet, IEC-104, OPC UA, etc.) and exact evidence. 3) Describe exposure and realistic impact (safety/availability/integrity) factually; do not include steps that perform control/write/actuation. 4) Recommend segmentation, allowlisting, auth where supported, patching, monitoring. 5) Mark confidence/validation; link evidence IDs.",
+  "commands": [
+    ""
+  ],
+  "tags": [
+    "ics",
+    "ot",
+    "reporting",
+    "safety"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

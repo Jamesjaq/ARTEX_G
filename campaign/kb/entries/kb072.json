@@ -1,0 +1,16 @@
+{
+  "id": "kb072",
+  "title": "Cloud metadata & SSRF validation (authorized)",
+  "description": "Test for SSRF reachability to metadata endpoints safely.",
+  "detail": "Authorized targets only. 1) If SSRF suspected, test with benign callbacks you control (approved OOB) rather than exfiltrating secrets. 2) Metadata IPs: 169.254.169.254 (AWS/Azure/GCP classic patterns vary; IMDSv2 requires token). 3) Confirm impact minimally (reachability) and report; do not harvest credentials from production metadata unless explicitly authorized. Use ssrf-metadata/cloud-attack skills.",
+  "commands": [
+    "curl -s -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/' --max-time 2"
+  ],
+  "tags": [
+    "cloud",
+    "ssrf",
+    "web"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z"
+}

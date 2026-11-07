@@ -1,0 +1,26 @@
+{
+  "id": "kb067",
+  "title": "DNP3 / IEC-104 / OPC UA / other ICS exposure (no write/control)",
+  "description": "Active identification of DNP3, IEC-104, OPC UA, Schneider, GE, OMRON, Mitsubishi, etc.; no control.",
+  "detail": "Authorized, in-scope. **Active + read/identify allowed; NO WRITE/CONTROL/ACTUATION.** 1) **DNP3** tcp/20000 (dnp3-info) — identify outstation/master info; **no operate/direct-operate/select-before-operate, no writes/control**. 2) **IEC-104** tcp/2404 — identify exposure/services; no command/actuation (no C_SC/C_DC/C_RC/C_SE). 3) **OPC UA** tcp/4840 — enumerate endpoints/security (anon/cert/auth), browse/read attributes for assessment; **no method calls that actuate, no writes to process variables**. 4) **Schneider Modicon** (Modbus/UMAS 502) — identify/read-only (see Modbus/UMAS). 5) **GE SRTP** 18245, **OMRON FINS** udp/9600, **Mitsubishi MELSEC** 5007/5006, **Codesys** 2455, **PCWorx** 1962, **Triconex** 1502, **Red Lion Crimson** 789, **PROFINET** discovery — identify/fingerprint read-only. 6) Report internet/IT-reachable ICS exposure as high risk; verify segmentation. Never send control/write operations.",
+  "commands": [
+    "nmap -Pn -sV -p 102,502,1962,2404,2455,4840,5006,5007,9600,20000,44818 --script dnp3-info,s7-info,enip-info,modbus-discover <target> -oA ics_multi",
+    "nmap -Pn -sU -p 9600,47808 --script bacnet-info <target> -oA ics_udp"
+  ],
+  "tags": [
+    "ics",
+    "scada",
+    "ot",
+    "dnp3",
+    "iec104",
+    "opcua",
+    "schneider",
+    "siemens",
+    "ge",
+    "omron",
+    "mitsubishi"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

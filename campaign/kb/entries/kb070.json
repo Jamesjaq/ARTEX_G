@@ -1,0 +1,16 @@
+{
+  "id": "kb070",
+  "title": "Default/weak credential & exposure checks (safe)",
+  "description": "Check for common exposures without lockout/damage.",
+  "detail": "Authorized only, rate-limit to avoid lockouts. 1) Look for default creds on mgmt interfaces (from vendor docs) - try minimal, controlled attempts if allowed. 2) Check anonymous/guest access (SMB/FTP/LDAP/Redis/Mongo) per scope. 3) Use nuclei default-login/exposure templates carefully; exclude ICS/fragile. 4) Verify manually; record cred/vuln facts with evidence. Never brute-force aggressively on production/OT.",
+  "commands": [
+    "nuclei -u https://T -tags default-login -rl 10 -o defaults.txt"
+  ],
+  "tags": [
+    "auth",
+    "misconfig",
+    "recon"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z"
+}

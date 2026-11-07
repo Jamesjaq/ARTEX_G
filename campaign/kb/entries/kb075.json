@@ -1,0 +1,16 @@
+{
+  "id": "kb075",
+  "title": "Soldier workflow (campaign discipline)",
+  "description": "Claim→recon→facts→intents→evidence→finding, no thrash/dup.",
+  "detail": "**End-to-end loop (follow every time):** 1) `campaign_frontier`/`campaign_status` to pick highest-value work; `campaign_claim` the intent. 2) **Before redoing work:** `campaign_recall \"<gist>\"` + `campaign_kb_search \"<keywords>\"` and check existing graph/assets — reuse prior facts, don’t duplicate. 3) **Recon → assets:** discover/verify targets; record `campaign_fact` (kinds: host, service, note/loot/vuln/cred as appropriate) and ensure assets exist (insert/list assets). 4) **Assets → intents:** turn confirmed observations into concrete next `campaign_intent`(s) (scoped, timeboxed, with parent/from facts). 5) **Execute → evidence:** run scoped actions (prefer structured output: nmap -oX/-oG, httpx -json, nuclei/ffuf/ferox json, netexec/json where possible); bind proof (traffic/commands/artifacts) to results. 6) **Evidence → findings:** when a vuln is confirmed with evidence, register the finding (and `campaign_fact -k vuln` / link evidence); no speculative findings. 7) **Close out:** `campaign_done` (links result fact) or record failure with reason; unclaim/release as needed. 8) **Feedback:** on success record what worked (reusable intel → hint/transfer); on failure record tried+blocker+next hypothesis as facts/intent. 9) **Hygiene:** `campaign_validate` periodically; keep graph consistent. **Scale:** WIP limits, prioritize buckets, rate-limit fragile/ICS, delta rescans (no blind re-scans). **ICS:** active/read-identify allowed, **NO write/control/actuation**.",
+  "commands": [
+    "# use campaign_* tools: campaign_frontier/campaign_claim/campaign_recall/campaign_kb_search/campaign_fact/campaign_intent/campaign_done/campaign_validate"
+  ],
+  "tags": [
+    "methodology",
+    "campaign",
+    "workflow"
+  ],
+  "source": "campaign doctrine",
+  "created_at": "2026-11-07T13:34:20Z"
+}

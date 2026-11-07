@@ -65,3 +65,5 @@ Thumbs.db
 # 个人开发启动脚本（含本机绝对路径与本地开发库密码，不进仓库）
 startt.bat
 stop.bat
+# backup of pre-English web
+/web.zh.bak/

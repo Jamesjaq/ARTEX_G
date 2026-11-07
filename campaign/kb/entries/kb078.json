@@ -1,0 +1,17 @@
+{
+  "id": "kb078",
+  "title": "ICS segmentation & IT/OT bridge assessment (no write/control)",
+  "description": "Identify conduits, exposed OT, and segmentation gaps; read-identify only.",
+  "detail": "Authorized, in-scope. Active/read-identify allowed; **NO write/control/actuation**. 1) Map IT↔OT conduits: jump hosts, dual-homed systems, VPN/remote access into control zones, historians/DMZ, vendor access, data diodes (observe presence). 2) From IT vantage (in scope), test reachability to OT subnets/services (read-identify scans at safe rate) — record what’s exposed (e.g., 502/102/44818/20000/2404/4840/47808 reachable). 3) From OT vantage (if in scope), identify egress/paths to IT. 4) Check HMI/EWS exposure (web mgmt/auth, default creds risk — controlled, non-destructive). 5) Findings: segmentation gaps, IT-reachable ICS protocols, exposed HMIs/EWS — with asset criticality. No writes/commands to controllers.",
+  "commands": [
+    "nmap -Pn -sV -p 80,443,502,102,2000,2404,4840,44818,20000,47808 <ot-subnet-or-targets> --open -oA itot/bridge"
+  ],
+  "tags": [
+    "ics",
+    "ot",
+    "segmentation",
+    "network"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T13:34:20Z"
+}

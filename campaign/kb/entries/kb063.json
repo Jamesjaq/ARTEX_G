@@ -1,0 +1,19 @@
+{
+  "id": "kb063",
+  "title": "Modbus TCP active identification (no write/control)",
+  "description": "Identify Modbus/Modicon devices & unit IDs; read/identify only, no writes.",
+  "detail": "Authorized, in-scope. Modbus TCP/502 often lacks auth. **Active + read/identify allowed; NO WRITE/CONTROL.** 1) nmap modbus-discover / modbus-discover --script-args to read device ID/unit IDs (confirm read-only). 2) Where a safe read-only client/library is used in-scope, you may read holding/input registers for identification ONLY — never write coils/registers (FC5/6/15/16/22/23 writes forbidden). 3) Schneider Modicon may expose UMAS (Modbus function 0x5A) on 502 — identify/enumerate info read-only; no write/program operations. 4) Record device/unit/vendor as facts with safety note.",
+  "commands": [
+    "nmap -Pn -sV -p 502 --script modbus-discover <target> -oN modbus.txt"
+  ],
+  "tags": [
+    "ics",
+    "scada",
+    "modbus",
+    "schneider",
+    "ot"
+  ],
+  "source": "operator playbook / authorized assessment",
+  "created_at": "2026-11-07T12:51:20Z",
+  "updated_at": "2026-11-07T13:17:08Z"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "kb060",
+  "title": "Web fuzzing & content discovery (ffuf/gobuster/feroxbuster)",
+  "description": "Directory/parameter discovery on scoped web targets.",
+  "detail": "1) Confirm target/scope and tech. 2) Dir brute with appropriate wordlists; filter by status/size/words. 3) Vhost/subdomain fuzz where relevant. 4) Parameter fuzz (GET/POST) for hidden inputs; feed findings into web-exploitation/api-security. 5) Rate-limit on production; avoid noisy scans on sensitive targets. Record interesting endpoints as service/loot facts.",
+  "commands": [
+    "ffuf -u https://T/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -o ffuf.json",
+    "feroxbuster -u https://T -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt"
+  ],
+  "tags": [
+    "web",
+    "recon",
+    "fuzzing"
+  ],
+  "source": "operator playbook",
+  "created_at": "2026-11-07T12:49:51Z"
+}
