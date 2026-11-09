@@ -1,82 +1,112 @@
-#!/bin/sh
-# ARTEX 守护启动脚本（Linux / macOS）
+#!/usr/bin/env bash
+# ARTEX-God one-command starter: backend (+ optional dashboard) with supervisor.
 #
-# 用法：
-#   ./start.sh                       前台运行（Ctrl-C 停止）
-#   nohup ./start.sh >artex.log 2>&1 &   后台常驻
-#   ./start.sh -addr :9000           额外参数原样透传给 artex
+# Usage:
+#   ./start.sh                  # start backend + dashboard (if available)
+#   START_WEB=0 ./start.sh      # backend only
+#   ./start.sh -addr :8787      # extra args passed to ./artex
 #
-# 它只做一件事：把 artex 跑起来，进程退出后按退出码决定要不要再拉起。
+# Env (optional): ARTEX_PG_DSN, ARTEX_ADDR (default 127.0.0.1:8787),
+#   ARTEX_DATA (default ./data), ARTEX_PROXY (default ''), WEB_PORT (default 3000),
+#   START_WEB (1=auto start dashboard when web/ deps present, 0=off),
+#   AUTOPENTEST_API (override dashboard->backend URL). A local .env is sourced if present.
 #
-#   0      用户正常停止        → 退出循环
-#   75     程序请求重启        → 立刻重跑（页面点了"一键更新"或"回滚"）
-#   其他   崩溃                → 退避后重跑（1→2→4…最多 60 秒）
-#
-# 刻意不在这里做下载、SHA256 校验或换装：那些逻辑在 sh 和 bat 上要写两套，
-# 而它们恰恰是最不能出错的一环——一旦换上跑不起来的二进制，本脚本会忠实地
-# 反复拉起它，用户只能上机器手工救。所以校验/换装全部留在 Go 里（selfupdate 包），
-# 由 artex 自己在启动时完成，脚本保持傻瓜化。
+# Backend supervisor: exit 0 = stop, 75 = restart (self-update/rollback), else crash backoff.
 set -u
 
-cd "$(dirname "$0")" || exit 1
+cd "$(dirname "${BASH_SOURCE[0]:-$0}")" || exit 1
 
+# load optional .env (export vars)
+if [ -f .env ]; then
+  set -a; . ./.env; set +a
+fi
+
+ARTEX_ADDR="${ARTEX_ADDR:-127.0.0.1:8787}"
+ARTEX_DATA="${ARTEX_DATA:-./data}"
+ARTEX_PROXY="${ARTEX_PROXY-}"
+WEB_PORT="${WEB_PORT:-3000}"
+START_WEB="${START_WEB:-1}"
 BIN=./artex
-[ -x "$BIN" ] || { echo "[artex] 找不到可执行文件 $BIN" >&2; exit 1; }
-
 RESTART_CODE=75
 MAX_DELAY=60
 
-child=0
+if [ ! -x "$BIN" ]; then
+  echo "[artex] missing executable $BIN. Run ./install.sh (or build: go build -o artex ./cmd/artex) first." >&2
+  exit 1
+fi
+
+# derive API URL for the dashboard
+if [ -n "${AUTOPENTEST_API:-}" ]; then
+  API_URL="$AUTOPENTEST_API"
+elif [[ "$ARTEX_ADDR" == :* ]]; then
+  API_URL="http://127.0.0.1${ARTEX_ADDR}"
+else
+  API_URL="http://${ARTEX_ADDR}"
+fi
+
+# display URL (localhost if bound to 0.0.0.0)
+disp_addr="$ARTEX_ADDR"
+[[ "$disp_addr" == 0.0.0.0:* ]] && disp_addr="127.0.0.1:${disp_addr#0.0.0.0:}"
+[[ "$disp_addr" == :* ]] && disp_addr="127.0.0.1${disp_addr}"
+
+backend_child=0
+web_child=0
 stopping=0
 
-# 转发停止信号给 artex 本体。
-#
-# 进程管理器（如 systemd）或 `kill` 通常只把 SIGTERM 发给本脚本（PID），不会转发给
-# 子进程。不转发的话 artex 收不到信号、做不了优雅关闭，可能在被强杀前把正在跑的
-# 任务断在半路。
-forward() {
-	stopping=1
-	if [ "$child" -ne 0 ]; then
-		kill -TERM "$child" 2>/dev/null || true
-	fi
+stop_all() {
+  stopping=1
+  [ "$web_child" -ne 0 ] && kill -TERM "$web_child" 2>/dev/null || true
+  [ "$backend_child" -ne 0 ] && kill -TERM "$backend_child" 2>/dev/null || true
 }
-trap forward INT TERM
+trap stop_all INT TERM
 
-delay=1
-while :; do
-	"$BIN" "$@" &
-	child=$!
+# --- backend supervisor (background) ---
+(
+  delay=1
+  while :; do
+    "$BIN" -addr "$ARTEX_ADDR" -proxy "$ARTEX_PROXY" -data "$ARTEX_DATA" "$@" &
+    bpid=$!
+    echo "$bpid" > .artex.backend.pid 2>/dev/null || true
+    wait "$bpid"; code=$?
+    if [ "$code" -gt 128 ]; then wait "$bpid" 2>/dev/null || true; code=$?; fi
+    rm -f .artex.backend.pid 2>/dev/null || true
+    [ "$stopping" -eq 1 ] && exit 0
+    case "$code" in
+      0) echo "[artex] backend exited normally"; exit 0 ;;
+      "$RESTART_CODE") echo "[artex] backend requested restart (update/rollback)…"; delay=1 ;;
+      *) echo "[artex] backend exited (code=$code), restarting in ${delay}s" >&2; sleep "$delay"; delay=$((delay*2)); [ "$delay" -gt "$MAX_DELAY" ] && delay=$MAX_DELAY ;;
+    esac
+  done
+) &
+backend_child=$!
 
-	# 信号会打断 wait 并让它返回 >128。此时子进程其实还在做优雅关闭，
-	# 必须再 wait 一次才能拿到它真正的退出码。
-	wait "$child"
-	code=$?
-	if [ "$code" -gt 128 ]; then
-		wait "$child"
-		code=$?
-	fi
-	child=0
+echo "[artex] backend: ${API_URL}  (data: ${ARTEX_DATA})"
+echo "[artex] UI:      http://${disp_addr}/  (embedded UI, if built with -tags embedui) or setup below"
 
-	if [ "$stopping" -eq 1 ]; then
-		echo "[artex] 已停止"
-		exit 0
-	fi
+# --- dashboard (optional) ---
+if [ "$START_WEB" != "0" ] && [ -f web/package.json ]; then
+  if command -v npx >/dev/null 2>&1; then
+    if [ -d web/node_modules ]; then
+      echo "[artex] dashboard: http://127.0.0.1:${WEB_PORT}  (-> ${API_URL})"
+      (
+        cd web && AUTOPENTEST_API="$API_URL" npx next dev -p "$WEB_PORT" -H 127.0.0.1
+      ) &
+      web_child=$!
+    else
+      echo "[artex] dashboard skipped: web/node_modules missing (run: cd web && npm ci). Set START_WEB=0 to hide." >&2
+    fi
+  else
+    echo "[artex] dashboard skipped: npx/npm not found. Set START_WEB=0 to hide." >&2
+  fi
+elif [ "$START_WEB" != "0" ]; then
+  echo "[artex] dashboard skipped: web/ not found. (single-binary/embedded UI can serve the app)" >&2
+fi
 
-	case "$code" in
-		0)
-			echo "[artex] 正常退出"
-			exit 0
-			;;
-		"$RESTART_CODE")
-			# 更新/回滚已就绪：重跑后 artex 会在启动时完成换装（见 selfupdate.Bootstrap）。
-			echo "[artex] 请求重启（应用新版本）…"
-			delay=1
-			;;
-		*)
-			echo "[artex] 异常退出 (code=$code)，${delay}s 后重启" >&2
-			sleep "$delay"
-			delay=$((delay * 2))
-			[ "$delay" -gt "$MAX_DELAY" ] && delay=$MAX_DELAY
-			;;
-	esac
-done
+echo "[artex] running. Ctrl+C to stop. (first run: open the UI -> /setup, then configure System > LLM)"
+
+# wait: exit when backend supervisor exits (or on signal)
+wait "$backend_child" 2>/dev/null || true
+stop_all
+[ "$web_child" -ne 0 ] && wait "$web_child" 2>/dev/null || true
+echo "[artex] stopped"
+exit 0
