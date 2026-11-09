@@ -358,7 +358,7 @@ func NewManager(dir, proxyAddr string) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("[pg] 数据库配置来源: %s", source)
+	log.Printf("[pg] database config source: %s", source)
 	pg, err := pgdb.Open(dsn)
 	if err != nil {
 		return nil, err
@@ -675,7 +675,7 @@ func (m *Manager) syncBrowserMCPProxy() {
 	if proxy != "" {
 		log.Printf("[mcp] browser MCP 已挂捕获代理 %s (CA %s)", proxy, cert)
 	} else {
-		log.Printf("[mcp] browser MCP 已移除捕获代理配置")
+		log.Printf("[mcp] browser MCP: removed capture proxy config")
 	}
 }
 
