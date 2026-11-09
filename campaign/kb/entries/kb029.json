@@ -1,8 +1,8 @@
 {
   "id": "kb029",
-  "title": "AI 基础设施攻击面",
-  "description": "Ollama/Langflow/LLM API 网关常见漏洞",
-  "detail": "第二届赛区方向之一，第三届大概率延续：\n1. Ollama CVE-2024-37052/37032（Probllama）：未授权 API (/api/0.2 或 11434) → 读任意文件/模型投毒；API 可直接 /api/pull 拉模型+跑\n2. Langflow：CVE-2026-33017 等未授权 RCE 链（/api/v1/... 编排执行），披露 20h 内被在野利用\n3. OpenAI 兼容网关（one-api/new-api/fastgpt/dify）：默认 token/未授权 → 白嫖模型；dify 曾现 SSRF/凭据泄露\n4. 本地模型文件目录泄露（.gguf/.safetensors 可下载→内含训练数据/后门）\n5. vector DB（milvus/qdrant/chroma）未授权 9xxx 端口 → 数据外带\n6. 提示注入本身就是攻击面：靶机 LLM 应用常设\"问它要 flag\"\n识别：端口扫出 11433/11434/8080/3000 + /docs swagger 即测。",
+  "title": "AI Infrastructure Attack Surface",
+  "description": "Common vulnerabilities in Ollama, Langflow, and LLM API gateways",
+  "detail": "One focus area from a past exercise, likely to recur:\n1. Ollama CVE-2024-37052/37032 (Probllama): unauthenticated API (/api/0.2 or 11434) → arbitrary file read/model poisoning; the API can directly /api/pull models and run them\n2. Langflow: unauthenticated RCE chains such as CVE-2026-33017 (/api/v1/... orchestration execution), exploited in the wild within 20 hours of disclosure\n3. OpenAI-compatible gateways (one-api/new-api/fastgpt/dify): default tokens/unauthenticated access → unauthorized model use; dify has had SSRF/credential exposure issues\n4. Local model file directory exposure (.gguf/.safetensors downloadable → may contain training data/backdoors)\n5. Vector databases (milvus/qdrant/chroma) unauthenticated on 9xxx ports → data exfiltration\n6. Prompt injection is itself an attack surface: target LLM applications are often configured to reveal sensitive proof artifacts when asked\nIdentification: when port scans show 11433/11434/8080/3000 + /docs swagger, test them.",
   "commands": [
     "curl http://T:11434/api/tags",
     "curl http://T:3000/api/v1/flows"
@@ -12,6 +12,6 @@
     "cve",
     "web"
   ],
-  "source": "Wiz/Oligo/Sysdig 公开报告",
+  "source": "Wiz/Oligo/Sysdig public reports",
   "created_at": "2026-10-15T14:14:38Z"
 }

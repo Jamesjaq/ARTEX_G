@@ -1,82 +1,82 @@
 ---
 name: satcom-recon
-description: 评估卫星通信相关目标时调用——VSAT/卫星调制解调器与地面站的管理面（IP 可达的 Web/SNMP/SSH 管理口）、以及用 SDR 对下行信号做被动捕获与解调分析（Iridium/Inmarsat/VSAT/AIS/ADS-B/ACARS 等）。默认被动接收 + 管理面测试，不发射。
+description: Invoke this skill when assessing satellite-communications targets — management surfaces of VSAT/satellite modems and ground stations (IP-reachable Web/SNMP/SSH management interfaces), and passive capture and demodulation analysis of downlink signals using SDR (Iridium/Inmarsat/VSAT/AIS/ADS-B/ACARS, etc.). Default is passive reception + management-surface testing; do not transmit.
 ---
 
-# 卫星通信（SATCOM）侦察与测试
+# Satellite Communications (SATCOM) Reconnaissance and Testing
 
-卫星通信评估有两条互补路径：**① IP 可达的地面设备管理面**（最贴近常规渗透，收益高）和 **② 射频下行的被动捕获与解调**（需 SDR 硬件，偏情报/暴露面分析）。本 skill 以**授权评估**为前提组织这两条路径。
+Satellite communications assessments have two complementary paths: **① IP-reachable ground-device management surfaces** (closest to conventional penetration testing, high value) and **② passive capture and demodulation of RF downlinks** (requires SDR hardware, more intelligence/exposure analysis). This skill organizes both paths under the premise of an **authorized assessment**.
 
 ---
 
-## 边界与禁止（Agent 必读 · 违反即越界）
+## Boundaries and Prohibitions (Agent must read — crossing these is out of scope)
 
-| 范围 | 允许 | 禁止 |
+| Scope | Allowed | Prohibited |
 |---|---|---|
-| **射频** | **被动接收 / 录制 IQ / 解调下行**（在允许接收的频段、授权范围内） | **向卫星/上行链路发射任何信号**；干扰、重放上行 |
-| **GNSS** | 分析、检测欺骗/干扰的影响 | 实际发射 GPS/GNSS 欺骗信号（多数司法辖区违法，可危及航空/航海安全） |
-| **内容** | 分析信令、暴露面、明文配置 | 解密/泄露第三方私密通信内容；违反当地监听/隐私法 |
-| **管理面** | 对授权范围内的 VSAT/调制解调器管理口做常规渗透 | 对未授权的运营商/他方终端做任何测试 |
+| **RF** | **Passive reception / IQ recording / downlink demodulation** (in permitted receive bands, within authorized scope) | **Transmit any signal** to satellites/uplink links; jamming or uplink replay |
+| **GNSS** | Analyze and detect the impact of spoofing/jamming | Actually transmit GPS/GNSS spoofing signals (illegal in many jurisdictions and can endanger aviation/maritime safety) |
+| **Content** | Analyze signaling, exposure, and plaintext configuration | Decrypt/disclose third-party private communications; violate local interception/privacy laws |
+| **Management surfaces** | Perform conventional penetration testing on VSAT/modem management interfaces within the authorized scope | Perform any testing on unauthorized operator/third-party terminals |
 
-> ⚠️ **法律红线**：卫星频段的**发射**普遍需要许可证，未授权发射（含 GNSS 欺骗、上行干扰/重放）在绝大多数国家属违法，且可能危及真实航空/航海/应急系统。本 skill **默认只接收、只分析、只测管理面**。任何 TX/欺骗/重放必须有明确书面授权并在屏蔽/隔离的受控环境进行。
+> ⚠️ **Legal red line**: **transmission** in satellite bands generally requires a license. Unauthorized transmission (including GNSS spoofing and uplink jamming/replay) is illegal in most countries and may endanger real aviation/maritime/emergency systems. This skill **defaults to receive-only, analyze-only, and management-surface testing only**. Any TX/spoofing/replay must have explicit written authorization and be performed in a shielded/isolated controlled environment.
 
 ---
 
-## 路径 A：地面设备管理面（优先，常规渗透）
+## Path A: Ground-Device Management Surfaces (priority, conventional penetration testing)
 
-VSAT/卫星调制解调器与地面站设备（iDirect、Hughes HN/HT、Gilat、Comtech、Newtec、BGAN/Inmarsat 终端等）通常带一个 **IP 可达的管理面**，这是最现实的攻击面，方法与常规内网/Web 渗透一致：
+VSAT/satellite modems and ground-station equipment (iDirect, Hughes HN/HT, Gilat, Comtech, Newtec, BGAN/Inmarsat terminals, etc.) usually expose an **IP-reachable management surface**. This is the most realistic attack surface, and the methods are consistent with conventional internal-network/web penetration testing:
 
 ```bash
-# 识别设备与管理服务（Web/SNMP/Telnet/SSH/专有端口）
+# Identify devices and management services (Web/SNMP/Telnet/SSH/proprietary ports)
 nmap -sV -p 22,23,80,161,443,8080 <MODEM_IP>
-# SNMP 常用 public/private，可读出型号、固件、配置
+# SNMP often uses public/private and can expose model, firmware, and configuration
 snmpwalk -v2c -c public <MODEM_IP> system 2>/dev/null | head
 ```
 
-重点：
-- **默认/弱口令**（admin/admin、admin/iDirect、installer 等）、未鉴权状态页、固件版本对应的已知 CVE。
-- 管理 Web 面用 **api-recon** skill 做接口侦察，再按常规 Web 漏洞方法评估（鉴权绕过、命令注入、配置下载）。
-- 配置备份常含卫星参数、路由、SNMP community、下一跳内网 —— 属高价值信息泄露。
-- 很多终端把管理口直接暴露在公网（可在测绘数据中按 favicon/banner 指纹定位），这本身常是一条发现。
+Focus areas:
+- **Default/weak credentials** (admin/admin, admin/iDirect, installer, etc.), unauthenticated status pages, and known CVEs for the firmware version.
+- Use the **api-recon** skill for interface reconnaissance on management web surfaces, then assess conventional web vulnerabilities (authentication bypass, command injection, configuration download).
+- Configuration backups often contain satellite parameters, routing, SNMP community strings, and next-hop internal networks — high-value information disclosure.
+- Many terminals expose management interfaces directly to the public internet (they can be located in mapping data by favicon/banner fingerprints); this is often itself a finding.
 
-> VSAT/BGAN 的**链路计划与射频参数**（频率、符号率、调制）从管理面即可读到，用于指导路径 B 的被动接收，无需试错扫频。
+> VSAT/BGAN **link plans and RF parameters** (frequency, symbol rate, modulation) can be read from the management surface and used to guide passive reception in Path B without trial-and-error frequency scanning.
 
 ---
 
-## 路径 B：SDR 被动捕获与解调（需硬件）
+## Path B: SDR Passive Capture and Demodulation (requires hardware)
 
-硬件：RTL-SDR（L 波段可收 Iridium/Inmarsat/AIS/ADS-B，需合适 LNA/天线）、HackRF/USRP（更宽）、合适的天线与低噪放。软件在 Kali/Linux 下多可 apt/pip 安装。
+Hardware: RTL-SDR (can receive Iridium/Inmarsat/AIS/ADS-B in L-band with an appropriate LNA/antenna), HackRF/USRP (wider bandwidth), suitable antennas, and a low-noise amplifier. Software can usually be installed on Kali/Linux via apt/pip.
 
-### B1 — 频谱与录制
+### B1 — Spectrum and Recording
 
 ```bash
-rtl_sdr -f 1626000000 -s 2048000 -g 40 iridium.iq      # 录 IQ（示例：Iridium 上行附近 L 波段）
-# 或用 gqrx / SDR++ 做可视化定频，inspectrum 看 IQ 星座与突发结构
+rtl_sdr -f 1626000000 -s 2048000 -g 40 iridium.iq      # record IQ (example: near Iridium uplink/L-band)
+# Or use gqrx / SDR++ for visual tuning, and inspectrum for IQ constellations and burst structure
 ```
 
-### B2 — 按协议解调（下行/广播，被动）
+### B2 — Protocol Demodulation (downlink/broadcast, passive)
 
-| 系统 | 频段/载体 | 常用工具 | 能看到什么 |
+| System | Band/carrier | Common tools | What can be observed |
 |---|---|---|---|
-| **Iridium** | 1616–1626 MHz | `gr-iridium` + `iridium-toolkit` | 帧/信令、部分明文页消息（暴露面分析） |
-| **Inmarsat STD-C / AERO** | L 波段 ~1.5 GHz | `scytale-C`、`JAERO` | EGC 安全网/船舶播发、航空 ACARS-over-satellite |
-| **VSAT (DVB-S/S2 下行)** | Ku/C 波段（需卫星天线+DVB 卡） | `TSDuck`、GSExtract 类 | 封装的 IP 流可能明文——经典“卫星链路泄露”面 |
-| **AIS（船舶）** | 161.975/162.025 MHz（含星载） | `AIS-catcher`、`rtl-ais` | 船舶位置/身份（暴露/追踪分析） |
-| **ADS-B（航空）** | 1090 MHz | `dump1090` | 航空器位置/身份 |
-| **ACARS** | VHF 131 MHz / 卫星 | `acarsdec`、`JAERO` | 航空文本报文 |
-| **气象卫星** | 137 MHz(APT) / L(HRPT) | `SatDump` | 图像（验证接收链路是否正常的无害靶子） |
+| **Iridium** | 1616–1626 MHz | `gr-iridium` + `iridium-toolkit` | Frames/signaling, some plaintext paging messages (exposure analysis) |
+| **Inmarsat STD-C / AERO** | L-band ~1.5 GHz | `scytale-C`, `JAERO` | EGC safety-net/ship broadcasts, aviation ACARS-over-satellite |
+| **VSAT (DVB-S/S2 downlink)** | Ku/C band (requires satellite dish + DVB card) | `TSDuck`, GSExtract-like tools | Encapsulated IP streams may be plaintext — a classic “satellite link leakage” surface |
+| **AIS (maritime)** | 161.975/162.025 MHz (including satellite-borne) | `AIS-catcher`, `rtl-ais` | Vessel position/identity (exposure/tracking analysis) |
+| **ADS-B (aviation)** | 1090 MHz | `dump1090` | Aircraft position/identity |
+| **ACARS** | VHF 131 MHz / satellite | `acarsdec`, `JAERO` | Aviation text messages |
+| **Weather satellites** | 137 MHz (APT) / L (HRPT) | `SatDump` | Imagery (a harmless target to verify the receive chain works) |
 
-方法：先用 SatDump 收一颗 NOAA/METEOR 气象星出图，确认天线/增益/采样链路正常，再去解目标系统。解出的信令/明文用于**暴露面与数据泄露评估**，不涉及解密私密内容。
+Method: first use SatDump to receive a NOAA/METEOR weather satellite image to confirm the antenna/gain/sampling chain works, then demodulate the target system. Use decoded signaling/plaintext for **exposure and data-leakage assessment**; do not decrypt private content.
 
-### B3 — GNSS（仅分析/检测）
+### B3 — GNSS (analysis/detection only)
 
-- 分析 GPS/GNSS **欺骗与干扰的影响面**（设备是否有抗欺骗、是否单纯信任 NMEA）。
-- **不发射**欺骗信号。如授权范围确需验证抗欺骗能力，使用带许可的信号模拟器在屏蔽室内进行，由硬件/射频专业人员执行——本 skill 不指导实际发射。
+- Analyze the **impact surface of GPS/GNSS spoofing and jamming** (whether devices have anti-spoofing and whether they blindly trust NMEA).
+- **Do not transmit** spoofing signals. If the authorized scope truly requires anti-spoofing verification, use a licensed signal simulator in a shielded room, performed by RF/hardware professionals — this skill does not provide guidance for actual transmission.
 
 ---
 
-## 交付
+## Delivery
 
-- 管理面发现（默认口令、未授权页、CVE、配置泄露）逐条 `report_finding`，并 `insert_assets` 写入调制解调器/地面站的 IP、服务与管理端点。
-- 射频侧产出：接收到的系统清单、可解调的信令类型、是否存在明文 IP/敏感播发（暴露面结论），标注接收条件与局限；原始 IQ 与解码内容按证据留存，不外泄第三方私密通信。
-- 明确区分“IP 可达管理面漏洞”（可修复的常规问题）与“射频暴露面”（多为设计/加密缺失，修复涉及链路层）。
+- Report management-surface findings (default credentials, unauthenticated pages, CVEs, configuration leaks) individually with `report_finding`, and use `insert_assets` to record modem/ground-station IPs, services, and management endpoints.
+- RF-side output: list of received systems, demodulatable signaling types, and whether plaintext IP/sensitive broadcasts exist (exposure conclusion), noting receive conditions and limitations; retain raw IQ and decoded content as evidence without disclosing third-party private communications.
+- Clearly distinguish “IP-reachable management-surface vulnerabilities” (conventional issues that can be remediated) from “RF exposure” (often design/encryption-absence issues whose remediation involves the link layer).

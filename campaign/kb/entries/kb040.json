@@ -1,14 +1,14 @@
 {
   "id": "kb040",
-  "title": "Misc 隐写与杂项速查",
-  "description": "文件头/字符串/隐写三板斧",
-  "detail": "1. file + xxd 头部：改后缀不改真身；png/jpg/zip/rar 头修复\n2. strings | grep -iE 'flag|key|ctf'\n3. binwalk -e：多层套娃压缩包/嵌入文件\n4. 图片：zsteg（png/bmp lsb）、stegsolve（帧/通道）、exiftool（注释/GPS）\n5. 压缩包：伪加密（hex 改标志）、爆破（zip2john + hashcat -m 13600）、明文攻击（bkcrack）\n6. 音频：wav lsb（ SilentEye/audacity 频谱图 ）\n7. 流量包：wireshark http/ftp 过滤导对象；usb 键盘流量脚本还原\n8. 取证：内存（volatility3）process cmdline/filescan 搜 flag；磁盘镜像挂载搜\n9. 编码链：base 家族/rot/与或/join-dutch 看特征（CyberChef magic）\n比赛渗透题里 misc 元素常藏在靶机文件里，别忽略下载目录。",
+  "title": "Miscellaneous Steganography and Artifact Analysis Quick Reference",
+  "description": "Three basics: file headers, strings, and steganography",
+  "detail": "1. file + xxd header: changing the extension does not change the real format; repair png/jpg/zip/rar headers\n2. strings | grep -iE 'flag|key|ctf'\n3. binwalk -e: nested archives/embedded files\n4. Images: zsteg (png/bmp LSB), stegsolve (frames/channels), exiftool (comments/GPS)\n5. Archives: fake encryption (edit the hex flag), brute force (zip2john + hashcat -m 13600), known-plaintext attack (bkcrack)\n6. Audio: WAV LSB (SilentEye/Audacity spectrogram)\n7. Packet captures: filter http/ftp in Wireshark and export objects; scripts to reconstruct USB keyboard traffic\n8. Forensics: memory (volatility3) process cmdline/filescan to search for sensitive artifacts; mount disk images and search\n9. Encoding chains: base families/ROT/XOR/Dutch National Flag-like patterns by characteristics (CyberChef magic)\nIn assessment targets, miscellaneous artifacts are often hidden in files on the target host; do not ignore download directories.",
   "commands": [
     "binwalk -e file.png && strings -n 6 file.png | grep -i flag"
   ],
   "tags": [
     "misc"
   ],
-  "source": "CTF wiki 思路",
+  "source": "common artifact analysis approach",
   "created_at": "2026-10-15T14:14:39Z"
 }

@@ -1,8 +1,8 @@
 {
   "id": "kb035",
-  "title": "Windows 域渗透入门（比赛向）",
-  "description": "四赛区铸剑·止戈方向基础",
-  "detail": "1. 信息：nltest /domain_trusts、net group \"domain admins\" /domain、SPN 扫描（.GetUserSPNs）\n2. Kerberoasting：SPN 服务账户 hash → hashcat -m 13100 → 域内横向王道\n3. AS-REP Roasting：无预认证账户（-m 18200）\n4. Relay：responder 毒化 + ntlmrelayx 到 smb/ldap（禁用 smb 签名时）\n5. 凭据传递：impacket 套件（psexec/wmiexec/smbexec/atexec secretsdump）\n6. 黄金/白银票据：拿到 krbtgt hash 后 forge（mimikatz/rubeus）\n7. ACL 滥用：WriteDACL/GenericAll 修改组\n8. 域内 flag 常在：DC 的 SYSVOL/NETLOGON、域管桌面、AD 数据库 ntds.dit（secretsdump 导）\n比赛一般到\"拿下域管读 flag\"为止，不必持久化。",
+  "title": "Windows Domain Penetration Basics (Assessment-Oriented)",
+  "description": "Foundations for domain-focused assessment areas",
+  "detail": "1. Information gathering: nltest /domain_trusts, net group \"domain admins\" /domain, SPN scanning (GetUserSPNs)\n2. Kerberoasting: SPN service account hashes → hashcat -m 13100 → a primary path for lateral movement in the domain\n3. AS-REP Roasting: accounts without preauthentication (-m 18200)\n4. Relay: responder poisoning + ntlmrelayx to SMB/LDAP (when SMB signing is disabled)\n5. Credential passing: impacket suite (psexec/wmiexec/smbexec/atexec, secretsdump)\n6. Golden/Silver tickets: forge after obtaining the krbtgt hash (mimikatz/rubeus)\n7. ACL abuse: modify groups with WriteDACL/GenericAll\n8. Domain proof artifacts are often found in: DC SYSVOL/NETLOGON, domain admin desktops, AD database ntds.dit (export with secretsdump)\nIn assessments, the goal is usually to reach \"compromise the domain admin and read the proof artifact\"; persistence is not necessary.",
   "commands": [
     "python3 GetUserSPNs.py domain/user:pass@dc -request -outputfile spn.hash",
     "python3 secretsdump.py domain/admin@dc"
@@ -12,6 +12,6 @@
     "windows",
     "lateral"
   ],
-  "source": "经验/impacket",
+  "source": "experience/impacket",
   "created_at": "2026-10-15T14:14:38Z"
 }

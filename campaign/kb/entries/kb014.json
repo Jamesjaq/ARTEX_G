@@ -1,8 +1,8 @@
 {
   "id": "kb014",
-  "title": "容器/K8s 逃逸",
-  "description": "privileged/socket/cap/k8s token",
-  "detail": "判断在容器：/.dockerenv 存在、cgroup 含 docker/kubepods。\n1. privileged：fdisk -l 找宿主盘；mount 到 /mnt → chroot 写 crontab/ssh key\n2. 挂了 /var/run/docker.sock：起特权容器挂载宿主\n3. capabilities：CAP_SYS_ADMIN 可挂 cgroup release_agent；CAP_DAC_READ_SEARCH 读任意文件\n4. k8s：ServiceAccount token 在 /var/run/secrets/.../token → api server 创建特权 pod\n5. 内核漏洞同样适用（宿主共享内核）\n逃逸后第一件事：在宿主找 flag + 收集云凭据（元数据/配置文件）。",
+  "title": "Container/Kubernetes Escape",
+  "description": "Privileged containers, sockets, capabilities, and Kubernetes tokens",
+  "detail": "Determine whether you are in a container: /.dockerenv exists, cgroup contains docker/kubepods.\n1. Privileged: use fdisk -l to find the host disk; mount it to /mnt → chroot and write a cron job/SSH key\n2. /var/run/docker.sock is mounted: start a privileged container that mounts the host\n3. Capabilities: CAP_SYS_ADMIN can mount the cgroup release_agent; CAP_DAC_READ_SEARCH can read arbitrary files\n4. Kubernetes: the ServiceAccount token is at /var/run/secrets/.../token → use the API server to create a privileged pod\n5. Kernel vulnerabilities also apply (the host kernel is shared)\nAfter escaping, first look for sensitive target files on the host and collect cloud credentials (metadata/configuration files).",
   "commands": [
     "cat /proc/1/cgroup | head -3; ls /.dockerenv"
   ],
@@ -11,6 +11,6 @@
     "privesc",
     "cloud"
   ],
-  "source": "经验",
+  "source": "experience",
   "created_at": "2026-10-15T13:44:05Z"
 }

@@ -40,7 +40,7 @@ sapper hint "<note>"                                 # leave a note for the comm
 
 When you are unsure HOW to attack what you found (technique, payload family,
 CVE for a fingerprint, privesc path), consult the knowledge base BEFORE
-improvising: `cg kb search "thinkphp rce"` / `cg kb search "linux 提权"`.
+improvising: `cg kb search "thinkphp rce"` / `cg kb search "linux privesc"`.
 Entries carry commands and methodology. Also add new knowledge back:
 `cg kb add "..." -t <tag> --detail "..."` when you discover something
 the base doesn't cover.

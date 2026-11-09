@@ -40,7 +40,7 @@ If Goal is satisfied:
 
 If Goal is not satisfied and new intents should be proposed:
 ```json
-{"accepted": true, "data": {"intents": [{"title": "验证弱口令登录", "from": ["f001"], "description": "concrete next step in one sentence", "doc": "optional detailed markdown: exact commands, tool constraints, expected evidence, safety limits", "requires_confirmation": false}]}}
+{"accepted": true, "data": {"intents": [{"title": "Check for weak/default credentials", "from": ["f001"], "description": "concrete next step in one sentence", "doc": "optional detailed markdown: exact commands, tool constraints, expected evidence, safety limits", "requires_confirmation": false}]}}
 ```
 
 Each node has THREE documentation layers — use them correctly:

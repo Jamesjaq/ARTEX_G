@@ -11,12 +11,12 @@ Entry shape (kb/entries/kb001.json):
 
     {
       "id": "kb001",
-      "title": "SQL 注入 — 手工确认与绕过",
+      "title": "SQL injection — manual validation and bypass",
       "description": "one-line what this entry teaches",
       "detail": "markdown body: methodology, payloads, caveats",
       "commands": ["sqlmap -u 'http://t/?id=1' --batch --dbs"],
       "tags": ["sqli", "web"],
-      "source": "hacktricks / writeup URL / 经验",
+      "source": "hacktricks / writeup URL / experience",
       "created_at": "2026-10-15T…Z"
     }
 
@@ -32,7 +32,7 @@ import time
 from pathlib import Path
 
 _KB_ID_RE = re.compile(r"^kb\d{3,}$")
-_TOKEN_RE = re.compile(r"[\w一-鿿]+", re.UNICODE)
+_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 VALID_TAGS_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 

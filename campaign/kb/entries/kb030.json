@@ -1,8 +1,8 @@
 {
   "id": "kb030",
-  "title": "云安全攻击清单",
-  "description": "AK/SK、元数据、Bucket、容器仓库",
-  "detail": "1. 凭据来源：代码硬编码（.env/config.py）、构建产物、git 历史、元数据接口\n2. AK/SK 利用：aliyun（ossutil/aliyun cli 列资源）、aws（aws sts get-caller-identity 起手）、tencent（cos/云api）\n3. 元数据：169.254.169.254 各家路径（见 SSRF 条目），阿里云新 IMDS 需要 token（先取再查）\n4. Bucket：公有遍历、任意上传（put）、serverless 函数改写；URL 特征 *.oss-*.aliyuncs.com / *.cos.ap-*.myqcloud.com / *.s3.amazonaws.com\n5. 镜像仓库：harbor 未授权（/api/v2.0/），docker registry 5000 api 列镜像 → 层里挖凭据\n6. k8s：10250 kubelet 未授权 exec、dashboard、etcd 2379\n云题常见终点：读 RDS/对象存储里的 flag，或用凭据开机器拿元数据 flag。",
+  "title": "Cloud Security Attack Checklist",
+  "description": "AK/SK credentials, metadata, buckets, and container registries",
+  "detail": "1. Credential sources: hardcoded in code (.env/config.py), build artifacts, git history, metadata endpoints\n2. AK/SK usage: Alibaba Cloud (ossutil/aliyun CLI to list resources), AWS (start with aws sts get-caller-identity), Tencent Cloud (COS/cloud APIs)\n3. Metadata: 169.254.169.254 provider-specific paths (see the SSRF entry); Alibaba Cloud's newer IMDS requires a token (fetch it first, then query)\n4. Buckets: public listing, arbitrary upload (PUT), serverless function modification; URL patterns *.oss-*.aliyuncs.com / *.cos.ap-*.myqcloud.com / *.s3.amazonaws.com\n5. Image registries: Harbor unauthenticated (/api/v2.0/), Docker registry 5000 API to list images → mine credentials from layers\n6. Kubernetes: kubelet 10250 unauthenticated exec, dashboard, etcd 2379\nCommon end goals in cloud assessments: read sensitive proof artifacts from RDS/object storage, or use credentials to launch instances and obtain metadata proof artifacts.",
   "commands": [
     "curl http://T:2375/version",
     "curl http://T:10250/runningpods/"
@@ -11,6 +11,6 @@
     "cloud",
     "cve"
   ],
-  "source": "经验/hacktricks-cloud",
+  "source": "experience/hacktricks-cloud",
   "created_at": "2026-10-15T14:14:38Z"
 }

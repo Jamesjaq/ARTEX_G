@@ -1,8 +1,8 @@
 {
   "id": "kb024",
-  "title": "成本、并发与模型选择策略",
-  "description": "速度即分数；并发限制是隐形杀手；贵模型早期便宜模型后期",
-  "detail": "1. 闯关制+排位衰减下，速度直接决定分数：省模型钱造成的分数损失远大于省下的钱\n2. API 并发限制（429）是隐形杀手：3 题并行就可能崩——开跑前测清楚各家 API 的并发上限，sweep 的 --minutes-per 轮转本身限制了同时在跑的 auto 数\n3. 动态调整：前期用强模型抢速度（单 flag 约 52 元），后期换便宜模型提并发；边际收益递减（最贵时单 flag 284 元）\n4. 得分即时锁定 + 动态计分：先易后难覆盖优先，早期失误（配置错/并发低）代价最大\n来源: TCH/CHYing 复盘",
+  "title": "Cost, Concurrency, and Model Selection Strategy",
+  "description": "Speed equals points; concurrency limits are hidden killers; use expensive models early and cheaper models later",
+  "detail": "1. Under staged progression and ranking decay, speed directly determines points: the score loss from saving model costs is far greater than the money saved\n2. API concurrency limits (429) are hidden killers: running 3 targets in parallel may already cause failures — measure each provider's concurrency limits before starting; sweep's --minutes-per rotation naturally limits how many auto runs are active at once\n3. Adjust dynamically: use strong models early to gain speed (about 52 CNY per proof artifact), then switch to cheaper models later to increase concurrency; returns diminish at the margin (the most expensive cases reached 284 CNY per proof artifact)\n4. Immediate result locking + dynamic scoring: prioritize easy targets first for coverage; early mistakes (misconfiguration/low concurrency) are the most costly\nSource: TCH/CHYing retrospectives",
   "commands": [],
   "tags": [
     "meta",

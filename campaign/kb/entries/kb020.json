@@ -1,13 +1,13 @@
 {
   "id": "kb020",
-  "title": "比赛策略与卡壳协议",
-  "description": "时间分配/提示纪律/双保险",
-  "detail": "1. 开局：全部题拉清单（arena challenges），每题 5 分钟指纹+定级（easy/medium/hard）\n2. 先易后难：便宜 flag 优先（得分即时锁定，涨分靠覆盖率）\n3. 每题设 timebox（20-30min），到点没思路：换下一题，别恋战\n4. 提示（-10%）：只在两次真实尝试失败后；解不出的题提示换分划算，能解出的不划算\n5. 卡壳协议：换 payload 家族→换攻击面（web→协议→逻辑）→查 kb→最后才提示\n6. 双保险：一个 agent 打题，另一个同步整理 kb/复盘（赛后答辩也占分）\n7. 记录一切：所有尝试（成功/失败）都进图，失败路径防止重复消耗\n8. 快结束 10 分钟：把所有未提交 flag 尝试再提交一遍（可能是提交接口没通）",
+  "title": "Engagement Strategy and Stall Protocol",
+  "description": "Time allocation, hint discipline, and redundancy",
+  "detail": "1. Kickoff: pull the full target list (arena challenges), spend 5 minutes per target on fingerprinting and grading (easy/medium/hard)\n2. Easy before hard: prioritize low-cost proof artifacts first (points/results lock in immediately; overall coverage drives progress)\n3. Set a timebox per target (20-30 min). If there is no clear path at the limit, move to the next target and avoid overcommitting\n4. Hints (-10%): use only after two genuine failed attempts; hints are worthwhile for targets you cannot solve, but not for targets you can solve\n5. Stall protocol: switch payload families → switch attack surfaces (web → protocol → logic) → consult the knowledge base → use a hint only as a last resort\n6. Redundancy: one agent works the target while another organizes the knowledge base and reviews progress in parallel (post-engagement reporting also matters)\n7. Record everything: log all attempts (successful/failed) in the graph; failed paths prevent repeated wasted effort\n8. Final 10 minutes: retry reporting/submission for all unsubmitted proof artifacts (the reporting interface may have failed earlier)",
   "commands": [],
   "tags": [
     "meta",
     "strategy"
   ],
-  "source": "往届复盘",
+  "source": "retrospective review",
   "created_at": "2026-10-15T13:44:05Z"
 }

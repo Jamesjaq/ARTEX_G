@@ -1,8 +1,8 @@
 {
   "id": "kb011",
-  "title": "凭据复用方法论",
-  "description": "每个新凭据按固定顺序喷洒",
-  "detail": "拿到一组凭据（web 后台/db/ssh）后按序试：\n1. 同站其它入口（前台用户、API）\n2. SSH：目标机 + 内网段 root/user 同名\n3. 数据库：mysql/mssql/redis 管理账号\n4. Windows：smb/wmi（impacket 一串）\n5. 中间件管理台\n6. git/svn 凭据 → 代码库 → 硬编码 key\n每个 cred fact 记 username/password/source/hit（命中处），指挥官据此派 spray intent。\n密码变形：前后缀 1/123/!、年份、公司缩写。",
+  "title": "Credential Reuse Methodology",
+  "description": "Spray each new credential set in a fixed order",
+  "detail": "After obtaining a set of credentials (web admin/db/ssh), try them in order:\n1. Other entry points on the same site (front-end users, APIs)\n2. SSH: the target host + same usernames on the internal subnet as root/user\n3. Databases: mysql/mssql/redis admin accounts\n4. Windows: SMB/WMI (impacket suite)\n5. Middleware management consoles\n6. git/svn credentials → code repository → hardcoded keys\nFor each cred fact, record username/password/source/hit (where it worked) so the commander can dispatch spray intents accordingly.\nPassword mutations: prefix/suffix 1/123/!, year, company abbreviation.",
   "commands": [
     "crackmapexec ssh 10.0.2.0/24 -u root -p 'P@ss'",
     "crackmapexec smb 10.0.2.0/24 -u administrator -H <ntlm>"
@@ -11,6 +11,6 @@
     "cred",
     "lateral"
   ],
-  "source": "经验",
+  "source": "experience",
   "created_at": "2026-10-15T13:44:05Z"
 }

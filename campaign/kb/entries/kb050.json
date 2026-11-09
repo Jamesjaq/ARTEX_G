@@ -1,8 +1,8 @@
 {
   "id": "kb050",
-  "title": "中间件 RCE 速查（版本→CVE→nuclei）",
-  "description": "指纹命中即打的最高频中间件漏洞表",
-  "detail": "指纹→打法映射（nuclei 模板内置，用 -tags 指定）：Log4j2 ≤2.14（log4shell）；Spring Boot ≤2.3（actuator 泄露+VM）；Shiro ≤1.5.1（rememberMe 反序列化）；Fastjson ≤1.2.47（autoType RCE）；WebLogic（CVE-2019-2725/2888）；Confluence（CVE-2022-26134 OGNL）；GitLab（CVE-2021-22205 exiftool）；ThinkPHP 5.x（invokefunction 路由 RCE，payload 形如 s=index/think 加 app/invokefunction）。流程：钉死版本 → 本表对照 → nuclei -u T -tags X 验证 → 拿 RCE 读 flag。",
+  "title": "Middleware RCE Quick Reference (Version → CVE → Nuclei)",
+  "description": "Highest-frequency middleware vulnerability table to test immediately when a fingerprint matches",
+  "detail": "Fingerprint → approach mapping (nuclei templates are built in; use -tags to select): Log4j2 ≤2.14 (Log4Shell); Spring Boot ≤2.3 (Actuator exposure + VM); Shiro ≤1.5.1 (rememberMe deserialization); Fastjson ≤1.2.47 (autoType RCE); WebLogic (CVE-2019-2725/2888); Confluence (CVE-2022-26134 OGNL); GitLab (CVE-2021-22205 ExifTool); ThinkPHP 5.x (invokefunction route RCE, payload shaped like s=index/think plus app/invokefunction). Workflow: pin down the version → check this table → verify with nuclei -u T -tags X → obtain RCE and read the proof artifact.",
   "commands": [
     "nuclei -u http://T -tags log4j,spring,shiro,fastjson -severity critical,high",
     "nuclei -u http://T -tags weblogic,confluence,gitlab"
@@ -12,6 +12,6 @@
     "rce",
     "middleware"
   ],
-  "source": "实战沉淀/CVE速查",
+  "source": "field experience/CVE quick reference",
   "created_at": "2026-10-16T23:58:00Z"
 }

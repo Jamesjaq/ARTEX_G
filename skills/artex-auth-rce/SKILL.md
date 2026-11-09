@@ -1,46 +1,46 @@
 ---
 name: artex-auth-rce
-description: 当目标疑似运行 ARTEX（AI 渗透平台，典型 :8787、/api/health 返回 service=artex、登录页用户名固定 ARTEX）时调用。检测并在授权范围内验证其被投毒版本的「登录接口 captcha 字段未授权命令执行后门」，以无害命令取证并上报为严重漏洞。
+description: Invoke this skill when a target appears to be running ARTEX (an AI penetration-testing platform, typically on :8787, where /api/health returns service=artex and the login page uses the fixed username ARTEX). Detect and, within the authorized scope, verify its poisoned version's "unauthorized command execution backdoor in the login endpoint captcha field" using harmless commands for evidence collection, and report it as a critical vulnerability.
 ---
 
-# ARTEX 登录接口投毒后门（未授权 RCE）检测与验证
+# ARTEX Login Endpoint Poisoned Backdoor (Unauthenticated RCE) Detection and Verification
 
-部分被投毒（供应链污染）的 ARTEX 版本在登录接口植入了后门：`POST /api/auth/login` 的 JSON 里有一个隐藏字段 `captcha`，当其值以 `!` 开头时，后端对「去掉首字符后的内容」执行 `sh -c`，命令输出经响应里的 `captcha` 字段返回——**无需 JWT、无需正确账号密码**。本 skill 在**已授权**前提下发现并验证该后门。
+Some poisoned (supply-chain compromised) ARTEX versions implant a backdoor in the login endpoint: the JSON body of `POST /api/auth/login` contains a hidden `captcha` field. When its value starts with `!`, the backend executes `sh -c` on "the content with the first character removed", and the command output is returned in the `captcha` field of the response — **no JWT and no valid account credentials are required**. Under an **authorized** scope, this skill discovers and verifies that backdoor.
 
-> 说明：官方/未被污染的 ARTEX 登录接口只接受 `username`/`password` 并做 bcrypt 校验，不存在该字段。命中说明目标跑的是被投毒的版本——这正是要上报的严重供应链/后门漏洞。
+> Note: The official/uncompromised ARTEX login endpoint accepts only `username`/`password` and performs bcrypt validation; it does not contain this field. A match indicates the target is running a poisoned version — which is exactly the critical supply-chain/backdoor vulnerability to report.
 
 ---
 
-## 边界与授权（Agent 必读 · 违反即越界）
+## Boundaries and Authorization (Agent must read — crossing these is out of scope)
 
-| 允许 | 禁止 |
+| Allowed | Prohibited |
 |---|---|
-| 仅对**本次授权范围内**、确属客户资产的 ARTEX 实例检测 | 对范围外 / 公网任意 ARTEX 实例扫描利用（这是定向攻击他人系统） |
-| 用**无害只读命令**（`id`/`whoami`/`hostname`/`uname -a`）证明 RCE 存在 | 执行任何破坏性命令（删文件、改配置、关服务、加账户、持久化、勒索） |
-| 读取版本/主机名等最小信息以取证 | 读取/外传目标敏感数据、凭据、数据库内容 |
-| 发现即**上报**，交由客户修复 | 以该后门为跳板做横向、提权、装载荷等后渗透（除非另有明确书面授权） |
+| Test only ARTEX instances that are **within this engagement's authorized scope** and confirmed to be customer assets | Scan or exploit arbitrary ARTEX instances outside scope or on the public internet (this would be a targeted attack on others' systems) |
+| Use **harmless read-only commands** (`id`/`whoami`/`hostname`/`uname -a`) to prove RCE exists | Execute any destructive command (delete files, change configuration, stop services, add accounts, establish persistence, ransomware) |
+| Read minimal information such as version/hostname for evidence | Read/exfiltrate sensitive target data, credentials, or database contents |
+| **Report** the finding immediately and hand it to the customer for remediation | Use the backdoor as a pivot for lateral movement, privilege escalation, payload staging, or other post-exploitation (unless explicitly authorized in writing) |
 
-> ⚠️ 这是**未授权 RCE**,一条请求即可执行命令,破坏力极大。**默认只做"证明存在"**:发一条无害命令、确认回显、立即 `report_finding`。任何超出 PoC 的动作都需显式书面授权,且仍受平台 guard 的"拒绝破坏性操作"约束。无授权范围外的目标**一律不测**。
+> ⚠️ This is **unauthenticated RCE**. A single request can execute commands and is highly destructive. **By default, only prove existence**: send one harmless command, confirm the echo, and immediately `report_finding`. Any action beyond the PoC requires explicit written authorization and is still subject to the platform guard's "refuse destructive operations" constraint. Targets outside the authorized scope must **never** be tested.
 
 ---
 
-## 1. 先确认目标确实是 ARTEX
+## 1. Confirm the Target Is Actually ARTEX
 
-避免对无关系统乱打。任一特征即可判定：
+Avoid probing unrelated systems. Any of the following characteristics is sufficient:
 
 ```bash
-# 健康接口（无需认证）——官方实例返回 service=artex
+# Health endpoint (no authentication required) — official instances return service=artex
 curl -s -m 8 http://<TARGET>:8787/api/health
-# 预期: {"ok":true,"service":"artex","version":"..."}
+# Expected: {"ok":true,"service":"artex","version":"..."}
 ```
 
-其它特征：登录页用户名输入框固定为 `ARTEX`；favicon/标题含 ARTEX；默认端口 `8787`（反代后可能是 80/443）。确认是 ARTEX 后再进入下一步。
+Other characteristics: the login page username input is fixed to `ARTEX`; the favicon/title contains ARTEX; the default port is `8787` (it may be 80/443 behind a reverse proxy). Proceed to the next step only after confirming it is ARTEX.
 
 ---
 
-## 2. 检测后门是否存在（一条无害探针）
+## 2. Detect Whether the Backdoor Exists (one harmless probe)
 
-发送带 `captcha` 的登录请求，命令用**唯一随机串 + id**，便于确定性判定（避免误报）：
+Send a login request containing `captcha`, using a **unique random nonce + id** command to make the determination deterministic (avoid false positives):
 
 ```bash
 NONCE="artexpoc_$(date +%s)_$RANDOM"
@@ -49,45 +49,45 @@ curl -s -m 10 -X POST http://<TARGET>:8787/api/auth/login \
   -d "{\"username\":\"x\",\"password\":\"y\",\"captcha\":\"!echo $NONCE; id\"}"
 ```
 
-判定：
-- **存在后门（严重）**：响应 JSON 的 `captcha` 字段里回显出了你的 `$NONCE` 和 `id` 的输出（如 `uid=0(root) ...`）。这证明未授权任意命令执行。
-- **不存在/已修复**：返回 `401 用户名或密码错误` 之类,`captcha` 不回显命令输出——官方未污染版本即如此,记为"未发现该后门"。
+Determination:
+- **Backdoor exists (critical)**: the `captcha` field in the JSON response echoes your `$NONCE` and the output of `id` (for example, `uid=0(root) ...`). This proves unauthenticated arbitrary command execution.
+- **Does not exist / fixed**: returns something like `401 incorrect username or password`, and `captcha` does not echo command output — this is the behavior of an official uncompromised version; record it as "backdoor not found".
 
-> 只用 `echo <nonce>; id` 这类无副作用命令确认。确认到回显即**停手取证**,不要再发第二条有副作用的命令。
+> Use only side-effect-free commands such as `echo <nonce>; id` for confirmation. Once the echo is confirmed, **stop and collect evidence**; do not send a second command with side effects.
 
 ---
 
-## 3. 最小化取证（仅为上报，无副作用）
+## 3. Minimal Evidence Collection (only for reporting, no side effects)
 
-确认存在后，可再取极少量只读信息辅助定级（可选，仍为无害命令）：
+After confirming the backdoor exists, you may optionally collect a small amount of read-only information to assist severity assessment (still harmless commands):
 
 ```bash
-# 身份与主机（判断是否 root、落在哪台机器）
+# Identity and host (determine whether it runs as root and which machine it is)
 curl -s -X POST http://<TARGET>:8787/api/auth/login -H 'Content-Type: application/json' \
   -d '{"username":"x","password":"y","captcha":"!id; hostname; uname -a"}'
 ```
 
-保留：完整的请求体与响应体(含回显)、目标 URL、时间。**不要**去读 `/etc/shadow`、数据库、密钥等敏感内容——证明"能执行命令"已足够定为严重,读敏感数据属越界。
+Preserve: the full request body and response body (including the echoed output), target URL, and timestamp. **Do not** read `/etc/shadow`, databases, keys, or other sensitive content — proving "commands can be executed" is sufficient to classify it as critical; reading sensitive data is out of scope.
 
 ---
 
-## 4. 上报
+## 4. Reporting
 
-确认后立即 `report_finding`：
+After confirmation, immediately `report_finding`:
 
-- **severity**：`critical`
-- **vulnclass/name**：未授权远程命令执行 / 供应链后门（ARTEX 登录接口 `captcha` 字段 `sh -c` 注入）
-- **evidence**：PoC 请求（`captcha` 以 `!` 开头）+ 响应中回显的命令输出（含你的 nonce 与 `id` 结果），证明无需认证即可 RCE。
-- 若流量捕获开启,配合 `traffic_search`/`bind_finding_traffic` 绑定这条登录请求/响应作为流量证据。
-- `insert_assets` 记下该 ARTEX 服务（host:port、service_type=http、title/version）。
+- **severity**: `critical`
+- **vulnclass/name**: Unauthenticated Remote Command Execution / Supply-Chain Backdoor (ARTEX login endpoint `captcha` field `sh -c` injection)
+- **evidence**: the PoC request (`captcha` starts with `!`) + the command output echoed in the response (including your nonce and `id` result), proving RCE is possible without authentication.
+- If traffic capture is enabled, use `traffic_search`/`bind_finding_traffic` to bind that login request/response as traffic evidence.
+- `insert_assets` should record the ARTEX service (host:port, service_type=http, title/version).
 
-**修复建议**（写进报告给客户）：
-- 立即下线或隔离该实例;它运行的是被投毒的 ARTEX 版本,任何人可未授权 RCE。
-- 从可信源(官方未污染代码)重新部署;删除登录接口里对 `captcha` 的 `sh -c` 分支。
-- 轮换该主机上的一切凭据/密钥(JWT 签名密钥、数据库口令、LLM/第三方 token),并排查是否已被利用(审计登录接口访问日志中 `captcha` 以 `!` 开头的请求)。
+**Remediation recommendations** (include in the report to the customer):
+- Immediately take the instance offline or isolate it; it is running a poisoned ARTEX version and anyone can achieve unauthenticated RCE.
+- Redeploy from a trusted source (official uncompromised code); remove the `sh -c` branch for `captcha` in the login endpoint.
+- Rotate all credentials/keys on that host (JWT signing keys, database passwords, LLM/third-party tokens), and investigate whether it has already been exploited (audit login endpoint access logs for requests where `captcha` starts with `!`).
 
 ---
 
-## 边界重申
+## Boundary Reaffirmation
 
-本 skill 的产出是**一个已验证的严重漏洞发现 + 修复建议**,不是对目标造成实际损害。证明 RCE 用无害命令即可;破坏性利用、后渗透、数据读取/外传、跨越授权范围,都在禁止之列。
+The output of this skill is **a verified critical vulnerability finding + remediation recommendations**, not causing actual damage to the target. Harmless commands are sufficient to prove RCE; destructive exploitation, post-exploitation, data reading/exfiltration, and crossing the authorized scope are all prohibited.

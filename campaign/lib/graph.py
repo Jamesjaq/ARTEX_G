@@ -999,12 +999,12 @@ def render_status(store: Store) -> str:
 # embedding, no deps. Recall is by design TITLE+DESCRIPTION only — the heavy
 # `doc` field is opt-in via `cg doc <id>` once a candidate looks promising.
 # --------------------------------------------------------------------------- #
-_RECALL_TOKEN_RE = re.compile(r"[\w一-鿿]+", re.UNICODE)
+_RECALL_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 
 
 def _recall_tokenize(text: str) -> list[str]:
     """Lowercase + Unicode-word/CJK tokenization. CJK each char is a token so
-    '空指针定位' splits into 4 tokens that match individually."""
+    'null pointer analysis' splits into 4 tokens that match individually."""
     if not text:
         return []
     out: list[str] = []

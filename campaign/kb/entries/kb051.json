@@ -1,8 +1,8 @@
 {
   "id": "kb051",
-  "title": "反序列化利用速查",
-  "description": "Java/PHP/Python 序列化特征的标准流程",
-  "detail": "Java：特征 Cookie rememberMe、rmi、jmx、Base64 长 blob；链优先 ysoserial（无则换路）。PHP：unserialize 入口（O:NN: 开头）→ phar 触发 → destruct 文件写 gadget。Python：pickle blob → reduce RCE。原则：先找入口再找链；nuclei tags=deserialization 辅助定位。",
+  "title": "Deserialization Exploitation Quick Reference",
+  "description": "Standard workflow for Java/PHP/Python serialization characteristics",
+  "detail": "Java: characteristics include the rememberMe cookie, RMI, JMX, and long Base64 blobs; prefer ysoserial chains (if unavailable, switch approaches). PHP: unserialize entry point (starts with O:NN:) → phar trigger → __destruct file-write gadget. Python: pickle blob → __reduce__ RCE. Principle: find the entry point before finding the chain; nuclei tags=deserialization can help locate candidates.",
   "commands": [
     "curl -s http://T/ --cookie rememberMe=1 -o /dev/null -w %{http_code}",
     "echo O:8:22stdClass22:0:{} | base64 -w0"
@@ -11,6 +11,6 @@
     "deser",
     "rce"
   ],
-  "source": "实战沉淀",
+  "source": "field experience",
   "created_at": "2026-10-16T23:58:00Z"
 }

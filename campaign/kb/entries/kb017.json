@@ -1,8 +1,8 @@
 {
   "id": "kb017",
-  "title": "git 泄露利用",
-  "description": ".git 目录恢复源码与历史凭据",
-  "detail": "确认：/.git/HEAD 200。\n完整恢复：git-dumper http://T/.git/ dest（或 githacker）。\n挖：\n1. git log --all --oneline；git diff HEAD^；删除的 commit 里常有 flag/密钥/调试接口\n2. git log -p 全历史搜凭据\n3. 恢复 stash/reflog\n其它泄露同思路：.svn、.DS_Store、swagger.json 接口清单、备份 zip（www.zip backup.zip）",
+  "title": "Git Leak Exploitation",
+  "description": "Recover source code and historical credentials from an exposed .git directory",
+  "detail": "Confirmation: /.git/HEAD returns 200.\nFull recovery: git-dumper http://T/.git/ dest (or githacker).\nInvestigation:\n1. git log --all --oneline; git diff HEAD^; deleted commits often contain sensitive files/keys/debug endpoints\n2. git log -p to search all history for credentials\n3. Recover stash/reflog\nApply the same approach to other leaks: .svn, .DS_Store, swagger.json endpoint inventory, backup archives (www.zip backup.zip).",
   "commands": [
     "python3 git_dumper.py http://T/.git/ ./src",
     "cd src && git log -p --all | grep -iE 'passw|secret|flag|token'"
@@ -12,6 +12,6 @@
     "leak",
     "recon"
   ],
-  "source": "经验",
+  "source": "experience",
   "created_at": "2026-10-15T13:44:05Z"
 }

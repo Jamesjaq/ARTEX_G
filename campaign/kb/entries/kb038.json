@@ -1,8 +1,8 @@
 {
   "id": "kb038",
-  "title": "请求头与来源绕过技巧",
-  "description": "XFF/Host/Referer 三板斧+方法绕过",
-  "detail": "X-Forwarded-For: 127.0.0.1 / X-Real-IP / X-Client-IP（绕 IP 白名单/内网限制）\nHost 头：密码重置投毒、缓存投毒、路由错乱\nReferer：绕防盗链/来源校验\n方法绕过：GET→POST/PUT/PATCH；?_method=DELETE（框架方法覆盖）\n路径绕过：/admin/./ 、//admin、/admin%20、/admin/.;、;/admin（分号矩阵）；大小写/Admin\n参数污染：HPP 双参数取后者\nContent-Type 切换：json↔form 绕 waf 解析差异\n认证头：X-Original-URL / X-Rewrite-URL（.net 特性）绕前端路由\n认证绕过：JWT none（见 JWT 条目）；session 固定；oauth redirect_uri 未校验",
+  "title": "Request Header and Origin Bypass Techniques",
+  "description": "XFF/Host/Referer basics plus method bypasses",
+  "detail": "X-Forwarded-For: 127.0.0.1 / X-Real-IP / X-Client-IP (bypass IP allowlists/internal-network restrictions)\nHost header: password reset poisoning, cache poisoning, routing confusion\nReferer: bypass hotlink/origin checks\nMethod bypass: GET→POST/PUT/PATCH; ?_method=DELETE (framework method override)\nPath bypass: /admin/./ , //admin, /admin%20, /admin/.;, ;/admin (path parameter/semicolon matrix); case changes /Admin\nParameter pollution: HPP takes the latter parameter in some stacks\nContent-Type switching: json↔form to bypass parsing differences in WAFs\nAuth headers: X-Original-URL / X-Rewrite-URL (.NET behavior) to bypass front-end routing\nAuthentication bypass: JWT none (see the JWT entry); session fixation; oauth redirect_uri not validated",
   "commands": [
     "curl -H 'X-Forwarded-For: 127.0.0.1' http://T/admin"
   ],
@@ -10,6 +10,6 @@
     "web",
     "bypass"
   ],
-  "source": "经验",
+  "source": "experience",
   "created_at": "2026-10-15T14:14:39Z"
 }

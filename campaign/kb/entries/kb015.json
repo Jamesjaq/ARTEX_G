@@ -1,8 +1,8 @@
 {
   "id": "kb015",
-  "title": "内网横向与代理链",
-  "description": "先通路后扫描，工具走代理",
-  "detail": "1. 判断连通性：icmp/tcp dns 出网（ping、curl、nslookup）\n2. 通路（按可用资源）：ssh -D 动态、frp（tcp/socks5）、chisel、venom、regeorg（web）\n3. 代理链：proxychains4 配 socks5，工具统一走它\n4. 内网扫描：轻量优先 fscan/nbtscan；nmap 限速 -T2 --max-retries 1（防触发监控/瘫网）\n5. 优先打：域控、运维机、数据库、备份服务器（secrets 满地）\n多点渗透关键：每个新网段建 host facts，别丢已经拿下的跳板（记 pivot 到 data）",
+  "title": "Internal Network Lateral Movement and Proxy Chains",
+  "description": "Establish a path first, then scan; route tools through the proxy",
+  "detail": "1. Determine connectivity: outbound ICMP/TCP/DNS (ping, curl, nslookup)\n2. Pivot paths (based on available resources): ssh -D dynamic forwarding, frp (tcp/socks5), chisel, venom, reGeorg (web)\n3. Proxy chain: configure socks5 in proxychains4 and route tools through it consistently\n4. Internal scanning: prefer lightweight tools first (fscan/nbtscan); limit nmap rate with -T2 --max-retries 1 (to avoid triggering monitoring or causing outages)\n5. Prioritize targets: domain controllers, operations hosts, databases, backup servers (rich in secrets)\nKey to multi-hop assessments: create host facts for each new subnet and do not lose pivots you have already gained (record the pivot in data).",
   "commands": [
     "ssh -D 1080 user@pivot",
     "proxychains4 nmap -sT -Pn -p 80,445,3389 10.0.2.0/24"
@@ -12,6 +12,6 @@
     "pivot",
     "network"
   ],
-  "source": "经验",
+  "source": "experience",
   "created_at": "2026-10-15T13:44:05Z"
 }

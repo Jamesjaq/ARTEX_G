@@ -1,8 +1,8 @@
 {
   "id": "kb008",
   "title": "XXE",
-  "description": "有回显直读，无回显 OOB 外带",
-  "detail": "有回显：<!ENTITY x SYSTEM \"file:///flag\">\n参数实体 + 外带（无回显）：evil.dtd 里 %all; %send;\nSSRF 组合：读 file:///etc/hosts 定内网再转 SSRF 打。\n支持点：上传 svg/xlsx/docx（内嵌 xml）、soap 接口、Content-Type: text/xml。",
+  "description": "Direct file read when output is echoed; OOB exfiltration when there is no echo",
+  "detail": "With echo: <!ENTITY x SYSTEM \"file:///flag\">\nParameter entity + out-of-band exfiltration (no echo): define %all; %send; in evil.dtd\nSSRF combination: read file:///etc/hosts to map the internal network, then pivot to SSRF.\nSupported points: uploading svg/xlsx/docx (embedded XML), SOAP endpoints, Content-Type: text/xml.",
   "commands": [],
   "tags": [
     "web",
