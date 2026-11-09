@@ -35,6 +35,15 @@ if [ ! -x "$BIN" ]; then
   exit 1
 fi
 
+# fail fast: backend needs database config (config.json or ARTEX_PG_DSN)
+if [ ! -f config.json ] && [ -z "${ARTEX_PG_DSN:-}" ]; then
+  echo "[artex] no database config found." >&2
+  echo "[artex]   set ARTEX_PG_DSN, e.g.:" >&2
+  echo "[artex]     export ARTEX_PG_DSN='postgres://user:pass@127.0.0.1:5432/artex?sslmode=disable'" >&2
+  echo "[artex]   or create config.json (see config.example.json), then re-run ./start.sh" >&2
+  exit 1
+fi
+
 # derive API URL for the dashboard
 if [ -n "${AUTOPENTEST_API:-}" ]; then
   API_URL="$AUTOPENTEST_API"
